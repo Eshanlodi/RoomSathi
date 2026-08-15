@@ -195,3 +195,62 @@
   background-clip: text;
   color: transparent;
 }
+
+/* RoomSathi Hero Word Animation */
+
+.hero-title .hero-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(40px);
+  filter: blur(8px);
+  animation: roomSathiWord 0.7s ease-out forwards;
+}
+
+/* Word by word delay */
+.hero-title .hero-word:nth-of-type(1) {
+  animation-delay: 0.15s;
+}
+
+.hero-title .hero-word:nth-of-type(2) {
+  animation-delay: 0.35s;
+}
+
+.hero-title .hero-word:nth-of-type(3) {
+  animation-delay: 0.55s;
+}
+
+.hero-title .hero-word:nth-of-type(4) {
+  animation-delay: 0.75s;
+}
+
+.hero-title .hero-word:nth-of-type(5) {
+  animation-delay: 0.95s;
+}
+
+.hero-title .hero-word:nth-of-type(6) {
+  animation-delay: 1.15s;
+}
+
+.hero-title .hero-word:nth-of-type(7) {
+  animation-delay: 1.35s;
+}
+
+@keyframes roomSathiWord {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+    filter: blur(8px);
+  }
+
+  70% {
+    opacity: 1;
+    transform: translateY(-5px);
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+} 

@@ -74,13 +74,13 @@ function Footer() {
             <h3 className="mb-4 text-sm font-semibold">Get in touch</h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-primary" /> hello@roomsathi.in
+                <Mail className="h-4 w-4 text-primary" /> roomsathiadmin@gmail.com
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-primary" /> +91 90000 12345
+                <Phone className="h-4 w-4 text-primary" /> +91 8962859858
               </li>
               <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-primary" /> Pune, Maharashtra
+                <MapPin className="h-4 w-4 text-primary" /> Indore, Madhya pradesh
               </li>
             </ul>
           </div>

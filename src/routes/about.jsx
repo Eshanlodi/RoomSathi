@@ -36,9 +36,9 @@ function AboutPage() {
 
         <div className="mt-16 grid gap-6 rounded-3xl border border-border bg-card p-8 shadow-soft sm:grid-cols-3">
           {[
-    { k: "500+", v: "Verified rooms listed" },
-    { k: "300+", v: "Owners onboarded" },
-    { k: "2000+", v: "Students housed" }
+    { k: "0+", v: "Verified rooms listed" },
+    { k: "0+", v: "Owners onboarded" },
+    { k: "0+", v: "Students housed" }
   ].map((s) => <div key={s.k} className="text-center">
               <p className="text-3xl font-extrabold tracking-tight text-primary">{s.k}</p>
               <p className="mt-1 text-sm text-muted-foreground">{s.v}</p>

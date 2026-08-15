@@ -20,7 +20,7 @@ function OwnerRegisterPage() {
         <div className="space-y-6">
           <p className="text-sm font-semibold text-primary">For property owners</p>
           <h1 className="text-4xl font-extrabold tracking-tight">
-            List your property. Reach 2000+ students.
+            List your property. Reach 0+ students.
           </h1>
           <p className="text-muted-foreground">
             Free listings, verified student profiles and direct enquiries. No agents, no commission

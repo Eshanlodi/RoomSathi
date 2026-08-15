@@ -79,11 +79,18 @@ function Index() {
   >
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium shadow-soft">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
-              Trusted by 2000+ students across India
+              Trusted by 0+ students across India
             </span>
-            <h1 className="text-4xl leading-[1.1] font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-              Find Your Perfect Room <span className="text-gradient">Near Your College</span>
-            </h1>
+            <h1 className=" hero-title text-4xl leading-[1.1] font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+               <span className="hero-word">Find</span>{" "}
+  <span className="hero-word">Your</span>{" "}
+  <span className="hero-word">Perfect</span>{" "}
+  <span className="hero-word">Room</span>{" "}
+  <span className="hero-word text-gradient">Near</span>{" "}
+  <span className="hero-word text-gradient">Your</span>{" "}
+  <span className="hero-word text-gradient">College</span>
+</h1>
+              
             <p className="max-w-xl text-lg text-muted-foreground">
               Find verified rooms, PGs, flats and compatible roommates without paying brokerage.
             </p>
@@ -100,17 +107,17 @@ function Index() {
               </Button>
             </div>
             <div className="flex items-center gap-4 pt-2">
-              <div className="flex -space-x-3">
-                {[11, 22, 33, 44].map((i) => <img
+              <div className="flex-space-x-3">
+                {[11, 22, 33, 44].map((i, index) => (<img
     key={i}
     src={`https://i.pravatar.cc/80?img=${i}`}
     alt="Student"
     loading="lazy"
     className="h-9 w-9 rounded-full border-2 border-background object-cover"
-  />)}
+       />))}
               </div>
               <p className="text-sm text-muted-foreground">
-                <span className="font-semibold text-foreground">4.8/5</span> average rating from
+                <span className="font-semibold text-foreground">0.1/5</span> average rating from
                 student reviews
               </p>
             </div>
@@ -222,7 +229,7 @@ function Index() {
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold text-primary">Student stories</p>
           <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-            Loved by students in 5 cities
+            Loved By students 
           </h2>
         </div>
         <div className="mt-12 grid gap-6 lg:grid-cols-3">

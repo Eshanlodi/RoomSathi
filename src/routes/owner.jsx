@@ -54,7 +54,7 @@ function OwnerDashboard() {
         <section className="rounded-2xl border border-border bg-card p-6 shadow-soft">
           <h2 className="font-semibold">Interested students</h2>
           <ul className="mt-4 space-y-4">
-            {["Aditi Joshi", "Rohan Mehta", "Fatima Shaikh", "Karan Bhatt"].map((n, i) => <li key={n} className="flex items-center gap-3">
+            {[].map((n, i) => <li key={n} className="flex items-center gap-3">
                 <img src={`https://i.pravatar.cc/80?img=${i * 9 + 5}`} alt={n} loading="lazy" className="h-10 w-10 rounded-full object-cover" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{n}</p>
