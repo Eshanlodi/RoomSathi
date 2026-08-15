@@ -117,8 +117,7 @@ function Index() {
        />))}
               </div>
               <p className="text-sm text-muted-foreground">
-                <span className="font-semibold text-foreground">0.1/5</span> average rating from
-                student reviews
+                <span className="font-semibold text-foreground">0.1/5</span> average rating from student reviews
               </p>
             </div>
           </motion.div>
