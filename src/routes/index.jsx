@@ -110,7 +110,7 @@ function Index() {
   />)}
               </div>
               <p className="text-sm text-muted-foreground">
-                <span className="font-semibold text-foreground">4.8/5</span> average rating from
+                <span className="font-semibold text-foreground">0/5</span> average rating from
                 student reviews
               </p>
             </div>
