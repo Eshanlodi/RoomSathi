@@ -26,9 +26,9 @@ import { Button } from "@/components/ui/button";
 import { faqs, rooms, testimonials } from "@/lib/data";
 
 const stats = [
-  { value: "500+", label: "Verified Rooms", icon: Building2 },
-  { value: "300+", label: "Trusted Owners", icon: School },
-  { value: "2000+", label: "Happy Students", icon: Users }
+  { value: "0", label: "Verified Rooms", icon: Building2 },
+  { value: "0", label: "Trusted Owners", icon: School },
+  { value: "0", label: "Happy Students", icon: Users }
 ];
 const features = [
   {
