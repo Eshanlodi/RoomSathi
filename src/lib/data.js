@@ -1,117 +1,114 @@
-const img = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=70`;
+
 const gallery = [
-  img("photo-1522708323590-d24dbb6b0267"),
-  img("photo-1560448204-e02f11c3d0e2"),
-  img("photo-1505693416388-ac5ce068fe85"),
-  img("photo-1502672260266-1c1ef2d93688"),
-  img("photo-1493809842364-78817add7ffb"),
-  img("photo-1586023492125-27b2c045efd7")
+  "/room1.jpeg",
+  "/room2.jpeg",
+  "/room3.jpeg",
+  "/room4.jpeg",
+  "/room5.jpeg",
+  "/room6.jpeg"
 ];
+
 const rooms = [
   {
-    id: "sunrise-pg",
-    name: "Sunrise Boys PG",
-    type: "PG",
-    rent: 6500,
-    deposit: 1e4,
-    city: "Pune",
-    college: "COEP Technological University",
-    distance: "0.8 km from college",
-    sharing: "Double",
-    verified: true,
-    rating: 4.8,
-    reviews: 42,
-    images: [gallery[0], gallery[1], gallery[2], gallery[3]],
-    facilities: ["WiFi", "Food", "Parking", "Attached Bathroom", "Laundry"],
-    description: "Bright double-sharing rooms with home-style meals, high speed WiFi and 24x7 water supply. Walking distance from campus gate no. 2.",
-    owner: { name: "Rakesh Deshmukh", phone: "+91 98230 11223", since: "2021" }
-  },
-  {
-    id: "green-nest-flat",
-    name: "Green Nest 2BHK Flat",
-    type: "Flat",
-    rent: 12e3,
-    deposit: 24e3,
-    city: "Pune",
-    college: "MIT World Peace University",
-    distance: "1.4 km from college",
-    sharing: "Triple",
-    verified: true,
-    rating: 4.6,
-    reviews: 28,
-    images: [gallery[1], gallery[4], gallery[5], gallery[0]],
-    facilities: ["WiFi", "AC", "Parking", "Balcony", "Attached Bathroom"],
-    description: "Fully furnished 2BHK in a gated society with lift, power backup and covered parking. Ideal for a group of three students.",
-    owner: { name: "Sneha Kulkarni", phone: "+91 90280 44551", since: "2019" }
-  },
-  {
-    id: "campus-corner",
-    name: "Campus Corner Girls PG",
-    type: "PG",
-    rent: 7800,
-    deposit: 12e3,
-    city: "Nagpur",
-    college: "VNIT Nagpur",
-    distance: "600 m from college",
+    id: "stanza-living-verona-house",
+    name: "Stanza Living Verona House",
+    type: "",
+    rent: 10000,
+    city: "Indore",
+    college: "IPS Academy",
+    distance: "350 m near IPS Academy",
     sharing: "Single",
     verified: true,
-    rating: 4.9,
-    reviews: 61,
-    images: [gallery[2], gallery[3], gallery[1], gallery[5]],
-    facilities: ["WiFi", "Food", "AC", "CCTV", "Housekeeping"],
-    description: "Secure girls-only PG with biometric entry, CCTV coverage, warden support and nutritious veg meals thrice a day.",
-    owner: { name: "Anita Sharma", phone: "+91 99700 88123", since: "2020" }
+    rating: 4.1,
+    reviews: 12,
+    images: [gallery[0]],
+    facilities: ["WiFi", "Food", "Parking", "Attached Bathroom", "Laundry"],
+    description: "Bright double-sharing rooms with home-style meals, high speed WiFi and 24x7 water supply. Walking distance from campus gate no. 2.",
+    owner: { name: "Jitedra Rathore", phone: "+91 9452180999", since: "2024" }
   },
   {
-    id: "study-hub-hostel",
-    name: "Study Hub Hostel",
+    id: "netguru-boys-hostel",
+    name: "Netguru Boys Hostel",
+    type: "",
+    rent: 8000,
+    city: "Indore",
+    college: "DAVV",
+    distance: "1.9 km from DAVV college",
+    sharing: "Single",
+    verified: true,
+    rating: 3,
+    reviews: 20,
+    images: [gallery[1]],
+    facilities: ["WiFi", "AC", "Parking", "Balcony", "Attached Bathroom"],
+    description: "Budget-friendly boys hostel in a residential area with mess, WiFi and laundry facilities, suitable for students looking for affordable accommodation near DAVV.",
+    owner: { name: "Gattu Bhaiya", phone: "+91 9226335110", since: "2023" }
+  },
+  {
+    id: "parmar-guest-house-and-hostel",
+    name: "Parmar Guest House and Hostel",
+    type: "",
+    rent: 7500,
+    city: "Indore",
+    college: "Medicaps University",
+    distance: " 2.2km from Medicaps University",
+    sharing: "",
+    verified: true,
+    rating: 4.1,
+    reviews: 15,
+    images: [gallery[2]],
+    facilities: ["WiFi", "Food", "AC", "CCTV", "Housekeeping"],
+    description: "Guest house and hostel accommodation offering a comfortable stay for students, with food, parking and convenient access to local transport and daily-need shops.",
+    owner: { name: "Vikas Parmar", phone: "9826045060", since: "2020" }
+  },
+  {
+    id: "your-space",
+    name: "Your Space Sharma Boys Hostel",
     type: "Hostel",
-    rent: 5200,
-    deposit: 6e3,
-    city: "Mumbai",
-    college: "VJTI Mumbai",
-    distance: "2.1 km from college",
+    rent: 10000,
+    city: "Indore",
+    college: "Prestige College",
+    distance: " 500 m from Prestige college",
     sharing: "Triple",
     verified: false,
-    rating: 4.2,
+    rating: 4.1,
     reviews: 17,
-    images: [gallery[3], gallery[0], gallery[4], gallery[2]],
+    images: [gallery[3]],
     facilities: ["WiFi", "Food", "Study Room", "Laundry"],
-    description: "Budget friendly hostel with a dedicated 24-hour study room, mess facility and easy local train connectivity.",
+    description: "Budget friendly hostel with a dedicated 24-hour study room, mess facility and easy local transport connectivity.",
     owner: { name: "Imran Sayyed", phone: "+91 98191 55220", since: "2022" }
   },
   {
-    id: "urban-stay-flat",
-    name: "Urban Stay Studio",
+    id: "Indore hostel",
+    name: "Indore hostel",
     type: "Flat",
-    rent: 15500,
-    deposit: 3e4,
-    city: "Bengaluru",
-    college: "RV College of Engineering",
-    distance: "1.1 km from college",
-    sharing: "Single",
-    verified: true,
-    rating: 4.7,
-    reviews: 35,
-    images: [gallery[4], gallery[5], gallery[2], gallery[1]],
-    facilities: ["WiFi", "AC", "Parking", "Gym", "Attached Bathroom"],
-    description: "Premium studio apartment with modular kitchen, work desk, gym access and 100 Mbps fibre broadband included.",
-    owner: { name: "Karthik Rao", phone: "+91 96860 77410", since: "2018" }
-  },
-  {
-    id: "shanti-niwas",
-    name: "Shanti Niwas Room",
-    type: "Room",
-    rent: 4500,
-    deposit: 5e3,
-    city: "Nashik",
-    college: "K. K. Wagh Institute",
-    distance: "1.8 km from college",
+    rent: 11000,
+    deposit: 0,
+    city: "Indore",
+    college: "Allen Institute",
+    distance: "1.4 km from Allen carrier palasiya",
     sharing: "Double",
     verified: true,
+    rating: 4.00,
+    reviews: 35,
+    images: [gallery[4]],
+    facilities: ["WiFi", "AC", "Parking", "Gym", "Attached Bathroom"],
+    description: "Student-friendly hostel located near the Allen coaching area, suitable for coaching students with easy access to food outlets, local shops and transport.",
+    owner: { name: "Rohit Jain", phone: "+91 96860 77410", since: "2023" }
+  },
+  {
+    id: "Grahum गृहम hostel",
+    name: "Grahum गृहम hostel",
+    type: "Room",
+    rent: 7500,
+    deposit: 0,
+    city: "Indore",
+    college: "Chameli devi group of institutions",
+    distance: "650 m from Chameli devi group of institutions",
+    sharing: "Double",
+    verified: false,
     rating: 4.4,
     reviews: 21,
-    images: [gallery[5], gallery[1], gallery[3], gallery[0]],
+    images: [gallery[5]],
     facilities: ["WiFi", "Parking", "Attached Bathroom"],
     description: "Peaceful independent room on the first floor of an owner-occupied bungalow with a separate entrance.",
     owner: { name: "Vijay Patil", phone: "+91 94220 33019", since: "2023" }
@@ -124,105 +121,244 @@ const facilityOptions = [
   "AC",
   "Attached Bathroom"
 ];
-const cities = ["Pune", "Mumbai", "Nagpur", "Bengaluru", "Nashik"];
+const cities = ["Indore"];
 const colleges = [
-  "COEP Technological University",
-  "MIT World Peace University",
-  "VNIT Nagpur",
-  "VJTI Mumbai",
-  "RV College of Engineering",
-  "K. K. Wagh Institute"
+  "IPS Academy",
+  "DAVV",
+  "Medicaps University",
+  "Prestige College",
+  "Allen Institute",
+  "Chameli devi group of institutions"
 ];
 const testimonials = [
   {
-    name: "Aditi Joshi",
-    role: "2nd Year, COEP",
-    quote: "I found a verified PG 10 minutes from campus in two days flat and paid zero brokerage. The photos were exactly what I got."
+    name: "Rahul Sharma",
+    role: "2nd Year, IPS Academy",
+    quote:
+      "RoomSathi ki help se mujhe IPS Academy ke paas affordable room mila. Verified owner aur room details dekhna bahut useful raha."
   },
   {
-    name: "Rohan Mehta",
-    role: "Final Year, VJTI",
-    quote: "The roommate matching quiz is scarily accurate. My flatmate and I matched at 94% and we have had zero conflicts."
+    name: "Aditya Verma",
+    role: "1st Year, DAVV",
+    quote:
+      "DAVV ke paas room search karna easy ho gaya. Photos, rent, distance aur facilities ek hi jagah mil gayi."
   },
   {
-    name: "Fatima Shaikh",
-    role: "1st Year, VNIT",
-    quote: "As a first year student moving cities, the verified badge and student reviews gave my parents real peace of mind."
+    name: "Neha Patel",
+    role: "3rd Year, Medicaps University",
+    quote:
+      "Verified listings ki wajah se room choose karte waqt confidence raha. Location aur facilities ki information bhi helpful thi."
   }
 ];
+
 const faqs = [
   {
     q: "Do I have to pay any brokerage on RoomSathi?",
-    a: "No. RoomSathi connects you directly with verified owners, so there is zero brokerage on every listing."
+    a:
+      "No. RoomSathi connects students directly with room and hostel owners, so students do not have to pay brokerage on RoomSathi listings."
   },
   {
     q: "How are listings verified?",
-    a: "Our team checks owner identity documents and property photos before a listing receives the verified badge."
+    a:
+      "Our team checks owner identity documents, property details and room information before a listing receives the verified badge."
   },
   {
-    q: "How does roommate matching work?",
-    a: "You answer a short lifestyle questionnaire covering budget, food, study hours and cleanliness. We score compatibility and show your best matches."
+    q: "Which colleges are currently available?",
+    a:
+      "Currently, RoomSathi provides listings around IPS Academy, DAVV, Medicaps University, Prestige College, Allen Institute and Chameli Devi Group of Institutions in Indore."
   },
   {
     q: "Can I book a visit before paying anything?",
-    a: "Yes. Every room detail page has a Book Visit option so you can see the place in person first."
+    a:
+      "Yes. Students can contact the owner and schedule a room visit before making any payment."
   },
   {
     q: "Is RoomSathi free for students?",
-    a: "Completely free. Owners list for free too, and we never charge a commission on rent."
+    a:
+      "Yes. RoomSathi is free for students to search and explore available rooms and hostels."
   }
 ];
+
 const roommateMatches = [
   {
-    name: "Nikhil Verma",
-    college: "COEP Technological University",
-    budget: 7e3,
+    name: "Rahul Sharma",
+    college: "IPS Academy",
+    budget: 8000,
     match: 95,
-    tags: ["Vegetarian", "Non-smoker", "Early riser", "Very tidy"],
+    tags: [
+      "Vegetarian",
+      "Non-smoker",
+      "Early riser",
+      "Very tidy"
+    ],
     avatar: "https://i.pravatar.cc/160?img=13"
   },
   {
-    name: "Arjun Nair",
-    college: "MIT World Peace University",
-    budget: 8500,
-    match: 88,
-    tags: ["Eggetarian", "Non-smoker", "Night owl", "Tidy"],
+    name: "Aditya Verma",
+    college: "DAVV",
+    budget: 7500,
+    match: 91,
+    tags: [
+      "Eggetarian",
+      "Non-smoker",
+      "Night owl",
+      "Tidy"
+    ],
     avatar: "https://i.pravatar.cc/160?img=33"
   },
   {
-    name: "Siddharth Rane",
-    college: "VJTI Mumbai",
-    budget: 6e3,
-    match: 81,
-    tags: ["Vegetarian", "Non-drinker", "Balanced", "Average tidy"],
+    name: "Neha Patel",
+    college: "Medicaps University",
+    budget: 7000,
+    match: 87,
+    tags: [
+      "Vegetarian",
+      "Non-smoker",
+      "Balanced",
+      "Tidy"
+    ],
+    avatar: "https://i.pravatar.cc/160?img=47"
+  },
+  {
+    name: "Mohit Jain",
+    college: "Prestige College",
+    budget: 9000,
+    match: 84,
+    tags: [
+      "Vegetarian",
+      "Non-smoker",
+      "Early riser",
+      "Average tidy"
+    ],
     avatar: "https://i.pravatar.cc/160?img=52"
   }
 ];
+
 const notifications = [
-  { title: "Visit confirmed", body: "Sunrise Boys PG visit scheduled for Saturday 11:00 AM.", time: "2h ago" },
-  { title: "New match", body: "Nikhil Verma matches your lifestyle at 95%.", time: "1d ago" },
-  { title: "Price drop", body: "Green Nest 2BHK reduced rent by \u20B91,000.", time: "3d ago" }
+  {
+    title: "Visit confirmed",
+    body:
+      "Your visit for Stanza Living Verona House near IPS Academy is confirmed.",
+    time: "2h ago"
+  },
+  {
+    title: "New room match",
+    body:
+      "A new room matching your budget is available near DAVV.",
+    time: "1d ago"
+  },
+  {
+    title: "New listing",
+    body:
+      "A new hostel has been listed near Medicaps University.",
+    time: "2d ago"
+  },
+  {
+    title: "Room verified",
+    body:
+      "Indore Hostel near Allen Institute has been verified.",
+    time: "3d ago"
+  }
 ];
+
 const roomReviews = [
-  { name: "Prathamesh K.", rating: 5, text: "Clean rooms, great food and the owner is very responsive.", date: "Mar 2026" },
-  { name: "Sana M.", rating: 4, text: "Good location and WiFi. Water pressure could be better in summer.", date: "Feb 2026" },
-  { name: "Devang S.", rating: 5, text: "Stayed for two years. Genuinely feels like home.", date: "Dec 2025" }
+  {
+    name: "Rahul S.",
+    rating: 5,
+    text:
+      "Room was clean and the location was very convenient for IPS Academy. Owner was also responsive.",
+    date: "Mar 2026"
+  },
+  {
+    name: "Aditya V.",
+    rating: 4,
+    text:
+      "Good hostel near DAVV. WiFi and parking facilities are useful for students.",
+    date: "Feb 2026"
+  },
+  {
+    name: "Neha P.",
+    rating: 5,
+    text:
+      "Good location near Medicaps University. Food and housekeeping facilities were helpful.",
+    date: "Jan 2026"
+  },
+  {
+    name: "Mohit J.",
+    rating: 4,
+    text:
+      "Affordable accommodation near college with good connectivity and basic facilities.",
+    date: "Dec 2025"
+  }
 ];
+
 const adminUsers = [
-  { name: "Aditi Joshi", email: "aditi@student.in", city: "Pune", status: "Active", joined: "12 Jan 2026" },
-  { name: "Rohan Mehta", email: "rohan@student.in", city: "Mumbai", status: "Active", joined: "03 Feb 2026" },
-  { name: "Fatima Shaikh", email: "fatima@student.in", city: "Nagpur", status: "Pending", joined: "21 Feb 2026" },
-  { name: "Karan Bhatt", email: "karan@student.in", city: "Pune", status: "Suspended", joined: "09 Mar 2026" }
+  {
+    name: "Rahul Sharma",
+    email: "rahul@student.in",
+    city: "Indore",
+    status: "Active",
+    joined: "12 Jan 2026"
+  },
+  {
+    name: "Aditya Verma",
+    email: "aditya@student.in",
+    city: "Indore",
+    status: "Active",
+    joined: "03 Feb 2026"
+  },
+  {
+    name: "Neha Patel",
+    email: "neha@student.in",
+    city: "Indore",
+    status: "Pending",
+    joined: "21 Feb 2026"
+  },
+  {
+    name: "Mohit Jain",
+    email: "mohit@student.in",
+    city: "Indore",
+    status: "Active",
+    joined: "09 Mar 2026"
+  }
 ];
+
 const monthlyStats = [
-  { month: "Jan", students: 220, rooms: 40 },
-  { month: "Feb", students: 310, rooms: 55 },
-  { month: "Mar", students: 420, rooms: 68 },
-  { month: "Apr", students: 380, rooms: 72 },
-  { month: "May", students: 520, rooms: 90 },
-  { month: "Jun", students: 610, rooms: 105 }
+  {
+    month: "Jan",
+    students: 120,
+    rooms: 18
+  },
+  {
+    month: "Feb",
+    students: 180,
+    rooms: 25
+  },
+  {
+    month: "Mar",
+    students: 240,
+    rooms: 32
+  },
+  {
+    month: "Apr",
+    students: 310,
+    rooms: 41
+  },
+  {
+    month: "May",
+    students: 390,
+    rooms: 52
+  },
+  {
+    month: "Jun",
+    students: 470,
+    rooms: 64
+  }
 ];
-const inr = (n) => `\u20B9${n.toLocaleString("en-IN")}`;
+
+const inr = (n) =>
+  `₹${Number(n || 0).toLocaleString("en-IN")}`;
+
 export {
   adminUsers,
   cities,
