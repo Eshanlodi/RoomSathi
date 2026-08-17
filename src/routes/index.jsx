@@ -108,7 +108,7 @@ function Index() {
             </div>
             <div className="flex items-center gap-4 pt-2">
               <div className="flex-space-x-3">
-                {[11, 22, 33, 44].map((i, index) => (<img
+                {[11].map((i, index) => (<img
     key={i}
     src={`https://i.pravatar.cc/80?img=${i}`}
     alt="Student"
