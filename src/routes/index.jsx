@@ -91,30 +91,103 @@ function Index() {
   <span className="hero-word text-gradient">College</span>
 </h1>
               
-            <p className="max-w-xl text-lg text-muted-foreground">
-              Find verified rooms, PGs, flats and compatible roommates without paying brokerage.
-            </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button variant="hero" size="xl" asChild>
-                <Link to="/rooms">
-                  <Search /> Search Rooms
-                </Link>
-              </Button>
-              <Button variant="outline" size="xl" asChild>
-                <Link to="/owner-register">
-                  <Building2 /> Become an Owner
-                </Link>
-              </Button>
-            </div>
+            <motion.p
+  initial={{
+    opacity: 0,
+    y: 20,
+  }}
+  animate={{
+    opacity: 1,
+    y: 0,
+  }}
+  transition={{
+    duration: 0.6,
+    delay: 1.1,
+    ease: [0.22, 1, 0.36, 1],
+  }}
+  className="max-w-xl text-lg text-muted-foreground"
+>
+  Find verified rooms, PGs, flats and compatible roommates without paying brokerage.
+</motion.p>
+       <motion.div
+  initial={{
+    opacity: 0,
+    y: 20,
+  }}
+  animate={{
+    opacity: 1,
+    y: 0,
+  }}
+  transition={{
+    duration: 0.6,
+    delay: 1.3,
+    ease: [0.22, 1, 0.36, 1],
+  }}
+  className="flex flex-col gap-3 sm:flex-row"
+>
+  <motion.div
+    whileHover={{
+      scale: 1.05,
+      y: -3,
+    }}
+    whileTap={{
+      scale: 0.96,
+    }}
+  >
+    <Button variant="hero" size="xl" asChild>
+      <Link to="/rooms">
+        <Search /> Search Rooms
+      </Link>
+    </Button>
+  </motion.div>
+
+  <motion.div
+    whileHover={{
+      scale: 1.05,
+      y: -3,
+    }}
+    whileTap={{
+      scale: 0.96,
+    }}
+  >
+    <Button variant="outline" size="xl" asChild>
+      <Link to="/owner-register">
+        <Building2 /> Become an Owner
+      </Link>
+    </Button>
+  </motion.div>
+</motion.div>     
             <div className="flex items-center gap-4 pt-2">
               <div className="flex-space-x-3">
-                {[11, 22, 33, 44].map((i, index) => (<img
-    key={i}
-    src={`https://i.pravatar.cc/80?img=${i}`}
-    alt="Student"
-    loading="lazy"
-    className="h-9 w-9 rounded-full border-2 border-background object-cover"
-       />))}
+                {[11, 22, 33, 44].map((i, index) => (<motion.img
+  key={i}
+  src={`https://i.pravatar.cc/80?img=${i}`}
+  alt="Student"
+  loading="lazy"
+  initial={{
+    opacity: 0,
+    scale: 0,
+    y: 15,
+  }}
+  animate={{
+    opacity: 1,
+    scale: 1,
+    y: 0,
+  }}
+  transition={{
+    duration: 0.5,
+    delay: 1.6 + index * 0.12,
+    type: "spring",
+    stiffness: 180,
+    damping: 12,
+  }}
+  whileHover={{
+    scale: 1.18,
+    y: -5,
+    zIndex: 10,
+  }}
+  className="h-9 w-9 rounded-full border-2 border-background object-cover"
+/>))}
               </div>
               <p className="text-sm text-muted-foreground">
                 <span className="font-semibold text-foreground">0.1/5</span> average rating from student reviews
@@ -122,25 +195,108 @@ function Index() {
             </div>
           </motion.div>
           <motion.div
-    initial={{ opacity: 0, scale: 0.96 }}
-    animate={{ opacity: 1, scale: 1 }}
-    transition={{ duration: 0.6, delay: 0.15 }}
-    className="relative"
+  initial={{ opacity: 0, scale: 0.94, y: 25 }}
+  animate={{
+    opacity: 1,
+    scale: 1,
+    y: [0, -8, 0],
+  }}
+  transition={{
+    opacity: {
+      duration: 0.7,
+      delay: 0.3,
+    },
+    scale: {
+      duration: 0.7,
+      delay: 0.3,
+    },
+    y: {
+      duration: 5,
+      repeat: Infinity,
+      ease: "easeInOut",
+    },
+  }}
+  whileHover={{
+    scale: 1.02,
+  }}
+  className="relative"
+>
+     <motion.img
+  src={heroImage}
+  alt="Students finding shared accommodation near their college"
+  width={1280}
+  height={1024}
+  animate={{
+    scale: [1, 1.015, 1],
+  }}
+  transition={{
+    duration: 6,
+    repeat: Infinity,
+    ease: "easeInOut",
+  }}
+  className="w-full rounded-3xl border border-border shadow-lift"
+/>       
+     <motion.div
+  initial={{
+    opacity: 0,
+    x: -25,
+    y: 15,
+    scale: 0.9,
+  }}
+  animate={{
+    opacity: 1,
+    x: 0,
+    y: [0, -7, 0],
+    scale: 1,
+  }}
+  transition={{
+    opacity: {
+      duration: 0.6,
+      delay: 0.9,
+    },
+    x: {
+      duration: 0.6,
+      delay: 0.9,
+    },
+    scale: {
+      duration: 0.6,
+      delay: 0.9,
+    },
+    y: {
+      duration: 4,
+      repeat: Infinity,
+      ease: "easeInOut",
+    },
+  }}
+  whileHover={{
+    scale: 1.05,
+    y: -5,
+  }}
+  className="absolute -bottom-6 left-4 hidden rounded-2xl border border-border bg-card/80 p-4 shadow-lift backdrop-blur-xl sm:block"
+>
+  <p className="text-xs text-muted-foreground">
+    Nearest verified PG
+  </p>
+
+  <p className="font-semibold">
+    600 m from campus
+  </p>
+
+  <motion.p
+    animate={{
+      opacity: [0.7, 1, 0.7],
+    }}
+    transition={{
+      duration: 2,
+      repeat: Infinity,
+      ease: "easeInOut",
+    }}
+    className="mt-1 flex items-center gap-1 text-xs text-accent"
   >
-            <img
-    src={heroImage}
-    alt="Students finding shared accommodation near their college"
-    width={1280}
-    height={1024}
-    className="w-full rounded-3xl border border-border shadow-lift"
-  />
-            <div className="absolute -bottom-6 left-4 hidden rounded-2xl border border-border bg-card p-4 shadow-lift sm:block">
-              <p className="text-xs text-muted-foreground">Nearest verified PG</p>
-              <p className="font-semibold">600 m from campus</p>
-              <p className="mt-1 flex items-center gap-1 text-xs text-accent">
-                <BadgeCheck className="h-3.5 w-3.5" /> Owner verified
-              </p>
-            </div>
+    <BadgeCheck className="h-3.5 w-3.5" />
+    Owner verified
+  </motion.p>
+</motion.div> 
           </motion.div>
         </div>
       </section>
@@ -184,14 +340,40 @@ function Index() {
           </p>
         </div>
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((f, i) => <motion.div
-    key={f.title}
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-60px" }}
-    transition={{ duration: 0.4, delay: i % 3 * 0.08 }}
-    className="group rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-1 hover:shadow-lift"
-  >
+        {features.map((f, i) => <motion.div  
+  key={f.title}
+  initial={{
+    opacity: 0,
+    y: 40,
+    scale: 0.92,
+    rotateX: 8,
+  }}
+  whileInView={{
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    rotateX: 0,
+  }}
+  viewport={{
+    once: true,
+    margin: "-80px",
+  }}
+  transition={{
+    duration: 0.65,
+    delay: i * 0.1,
+    ease: [0.22, 1, 0.36, 1],
+  }}
+  whileHover={{
+    y: -10,
+    scale: 1.025,
+    rotateX: 2,
+    rotateY: i % 2 === 0 ? 2 : -2,
+  }}
+  className="group rounded-2xl border border-border bg-card p-6 shadow-soft transition-shadow duration-300 hover:shadow-lift"
+  style={{
+    transformStyle: "preserve-3d",
+  }}
+>
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                 <f.icon className="h-5 w-5" />
               </span>
