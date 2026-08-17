@@ -159,6 +159,7 @@ function Index() {
 </motion.div>     
             <div className="flex items-center gap-4 pt-2">
               <div className="flex-space-x-3">
+
                 {[11, 22, 33, 44].map((i, index) => (<motion.img
   key={i}
   src={`https://i.pravatar.cc/80?img=${i}`}
@@ -188,6 +189,13 @@ function Index() {
   }}
   className="h-9 w-9 rounded-full border-2 border-background object-cover"
 />))}
+                {[11].map((i, index) => (<img
+    key={i}
+    src={`https://i.pravatar.cc/80?img=${i}`}
+    alt="Student"
+    loading="lazy"
+    className="h-9 w-9 rounded-full border-2 border-background object-cover"
+       />))}
               </div>
               <p className="text-sm text-muted-foreground">
                 <span className="font-semibold text-foreground">0.1/5</span> average rating from student reviews
