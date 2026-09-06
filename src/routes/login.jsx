@@ -1,17 +1,35 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
-import { Eye, EyeOff, Home, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Home, Loader2, Lock, Mail } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/context/AuthContext";
 
 function LoginPage() {
   const [show, setShow] = useState(false);
-  const onSubmit = (e) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const onSubmit = async (e) => {
     e.preventDefault();
-    toast.success("Logged in successfully", { description: "Welcome back to RoomSathi." });
+    setSubmitting(true);
+    try {
+      await login({ email, password });
+      toast.success("Logged in successfully", { description: "Welcome back to RoomSathi." });
+      // Send the user back to whatever page they were trying to reach, or the dashboard
+      navigate(location.state?.from?.pathname || "/dashboard", { replace: true });
+    } catch (err) {
+      toast.error("Login failed", { description: err.message });
+    } finally {
+      setSubmitting(false);
+    }
   };
   return <div className="gradient-hero relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12">
       <div className="absolute -top-32 -left-24 h-96 w-96 rounded-full bg-primary-foreground/10 blur-3xl" />
@@ -40,7 +58,15 @@ function LoginPage() {
             <Label htmlFor="email">Email</Label>
             <div className="relative">
               <Mail className="absolute top-2.5 left-3 h-4 w-4 text-muted-foreground" />
-              <Input id="email" type="email" required placeholder="you@college.edu" className="pl-9" />
+              <Input
+    id="email"
+    type="email"
+    required
+    placeholder="you@college.edu"
+    className="pl-9"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+  />
             </div>
           </div>
           <div className="space-y-2">
@@ -53,6 +79,8 @@ function LoginPage() {
     required
     placeholder="••••••••"
     className="px-9"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
   />
               <button
     type="button"
@@ -76,8 +104,8 @@ function LoginPage() {
               Forgot Password?
             </button>
           </div>
-          <Button type="submit" variant="hero" size="xl" className="w-full">
-            Login
+          <Button type="submit" variant="hero" size="xl" className="w-full" disabled={submitting}>
+            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Login"}
           </Button>
         </form>
 

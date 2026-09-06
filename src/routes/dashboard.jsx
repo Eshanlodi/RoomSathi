@@ -10,6 +10,7 @@ import {
 import { DashboardLayout, StatCard } from "@/components/layout/dashboard-layout";
 import { RoomCard } from "@/components/room-card";
 import { notifications, rooms } from "@/lib/data";
+import { useAuth } from "@/context/AuthContext";
 
 const items = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/dashboard" },
@@ -21,7 +22,14 @@ const items = [
   { label: "Profile", icon: User, to: "/profile" }
 ];
 function StudentDashboard() {
-  return <DashboardLayout items={items} role="Student" title="Welcome back, Aditi" subtitle="Here's what's new near COEP">
+  const { user } = useAuth();
+  const firstName = user?.name?.split(" ")[0] || "Student";
+  return <DashboardLayout
+    items={items}
+    role="Student"
+    title={`Welcome back, ${firstName}`}
+    subtitle={user?.college ? `Here's what's new near ${user.college}` : "Here's what's new for you"}
+  >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Rooms viewed" value="24" icon={Search} hint="+6 this week" />
         <StatCard label="Wishlist" value="5" icon={Heart} hint="2 price drops" />

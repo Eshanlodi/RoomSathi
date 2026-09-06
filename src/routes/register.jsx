@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
-import { Upload } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/site-layout";
@@ -8,12 +8,82 @@ import { Button } from "@/components/ui/button";
 import { Field, FormSection, Select } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { colleges, cities } from "@/lib/data";
+import { useAuth } from "@/context/AuthContext";
+import { api } from "@/lib/api";
+import {
+  mapCleanliness,
+  mapFoodPreference,
+  mapGuestsFrequency,
+  mapSleepSchedule,
+  mapStudyHabits,
+  mapYesNo,
+} from "@/lib/mappers";
 
 function RegisterPage() {
   const [preview, setPreview] = useState(null);
-  const onSubmit = (e) => {
+  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    phone: "",
+    college: "",
+    city: "",
+    budget: "",
+    food: "Vegetarian",
+    smoke: "No",
+    drink: "No",
+    sleep: "11 PM - 12 AM",
+    clean: "Tidy",
+  });
+  const { register } = useAuth();
+  const navigate = useNavigate();
+
+  const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
+
+  const onSubmit = async (e) => {
     e.preventDefault();
-    toast.success("Account created", { description: "Your student profile is ready." });
+    setSubmitting(true);
+    try {
+      // Step 1: create the account (name, email, password, role, college, phone)
+      await register({
+        name: form.fullName,
+        email: form.email,
+        password: form.password,
+        role: "student",
+        college: form.college,
+        phone: form.phone,
+      });
+
+      // Step 2: save the lifestyle/roommate-matching details against the new account.
+      // This runs right after register() so the JWT is already set on the request.
+      try {
+        await api.roommates.upsertProfile({
+          college: form.college,
+          city: form.city,
+          budget: Number(form.budget) || 0,
+          lifestyle: {
+            sleepSchedule: mapSleepSchedule(form.sleep),
+            cleanliness: mapCleanliness(form.clean),
+            smoking: mapYesNo(form.smoke),
+            drinking: mapYesNo(form.drink),
+            guestsFrequency: mapGuestsFrequency(),
+            studyHabits: mapStudyHabits(),
+            foodPreference: mapFoodPreference(form.food),
+          },
+        });
+      } catch (profileErr) {
+        // Account creation succeeded even if this secondary step fails - don't block signup over it
+        console.error("Roommate profile save failed:", profileErr.message);
+      }
+
+      toast.success("Account created", { description: "Your student profile is ready." });
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      toast.error("Registration failed", { description: err.message });
+    } finally {
+      setSubmitting(false);
+    }
   };
   return <SiteLayout>
       <div className="gradient-soft border-b border-border">
@@ -37,16 +107,16 @@ function RegisterPage() {
   >
         <FormSection title="Account details" description="How you log in and how owners reach you.">
           <Field label="Full Name" htmlFor="fullName">
-            <Input id="fullName" required placeholder="Aditi Joshi" />
+            <Input id="fullName" required placeholder="Aditi Joshi" value={form.fullName} onChange={update("fullName")} />
           </Field>
           <Field label="Email" htmlFor="remail">
-            <Input id="remail" type="email" required placeholder="you@college.edu" />
+            <Input id="remail" type="email" required placeholder="you@college.edu" value={form.email} onChange={update("email")} />
           </Field>
           <Field label="Password" htmlFor="rpassword">
-            <Input id="rpassword" type="password" required placeholder="••••••••" />
+            <Input id="rpassword" type="password" required minLength={6} placeholder="••••••••" value={form.password} onChange={update("password")} />
           </Field>
           <Field label="Phone" htmlFor="phone">
-            <Input id="phone" type="tel" required placeholder="+91 90000 12345" />
+            <Input id="phone" type="tel" required placeholder="+91 90000 12345" value={form.phone} onChange={update("phone")} />
           </Field>
           <Field label="Gender" htmlFor="gender">
             <Select id="gender" defaultValue="">
@@ -81,7 +151,7 @@ function RegisterPage() {
 
         <FormSection title="College & budget" description="So we can sort rooms by distance and rent.">
           <Field label="College" htmlFor="college">
-            <Select id="college" defaultValue="">
+            <Select id="college" value={form.college} onChange={update("college")}>
               <option value="" disabled>
                 Select college
               </option>
@@ -89,7 +159,7 @@ function RegisterPage() {
             </Select>
           </Field>
           <Field label="City" htmlFor="city">
-            <Select id="city" defaultValue="">
+            <Select id="city" value={form.city} onChange={update("city")}>
               <option value="" disabled>
                 Select city
               </option>
@@ -97,7 +167,7 @@ function RegisterPage() {
             </Select>
           </Field>
           <Field label="Monthly Budget (₹)" htmlFor="budget">
-            <Input id="budget" type="number" min={1e3} step={500} placeholder="8000" />
+            <Input id="budget" type="number" min={1e3} step={500} placeholder="8000" value={form.budget} onChange={update("budget")} />
           </Field>
           <Field label="Preferred Sharing" htmlFor="sharing">
             <Select id="sharing" defaultValue="Double">
@@ -110,7 +180,7 @@ function RegisterPage() {
 
         <FormSection title="Lifestyle" description="Used only for roommate compatibility scoring.">
           <Field label="Food Preference" htmlFor="food">
-            <Select id="food" defaultValue="Vegetarian">
+            <Select id="food" value={form.food} onChange={update("food")}>
               <option>Vegetarian</option>
               <option>Eggetarian</option>
               <option>Non-vegetarian</option>
@@ -118,14 +188,14 @@ function RegisterPage() {
             </Select>
           </Field>
           <Field label="Smoking" htmlFor="smoke">
-            <Select id="smoke" defaultValue="No">
+            <Select id="smoke" value={form.smoke} onChange={update("smoke")}>
               <option>No</option>
               <option>Occasionally</option>
               <option>Yes</option>
             </Select>
           </Field>
           <Field label="Drinking" htmlFor="drink">
-            <Select id="drink" defaultValue="No">
+            <Select id="drink" value={form.drink} onChange={update("drink")}>
               <option>No</option>
               <option>Occasionally</option>
               <option>Yes</option>
@@ -140,7 +210,7 @@ function RegisterPage() {
             </Select>
           </Field>
           <Field label="Sleep Time" htmlFor="sleep">
-            <Select id="sleep" defaultValue="11 PM - 12 AM">
+            <Select id="sleep" value={form.sleep} onChange={update("sleep")}>
               <option>Before 10 PM</option>
               <option>10 PM - 11 PM</option>
               <option>11 PM - 12 AM</option>
@@ -148,7 +218,7 @@ function RegisterPage() {
             </Select>
           </Field>
           <Field label="Cleanliness" htmlFor="clean">
-            <Select id="clean" defaultValue="Tidy">
+            <Select id="clean" value={form.clean} onChange={update("clean")}>
               <option>Very tidy</option>
               <option>Tidy</option>
               <option>Average</option>
@@ -158,8 +228,8 @@ function RegisterPage() {
         </FormSection>
 
         <div className="flex flex-col items-center gap-3">
-          <Button type="submit" variant="hero" size="xl" className="w-full sm:w-64">
-            Register
+          <Button type="submit" variant="hero" size="xl" className="w-full sm:w-64" disabled={submitting}>
+            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Register"}
           </Button>
           <p className="text-sm text-muted-foreground">
             Already have an account?{" "}
