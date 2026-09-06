@@ -15,6 +15,8 @@ import Roommates from "@/routes/roommates";
 import Rooms from "@/routes/rooms";
 import RoomDetails from "@/routes/room-details";
 import { SiteLayout } from "@/components/layout/site-layout";
+import { AuthProvider } from "@/context/AuthContext";
+import { ProtectedRoute } from "@/components/protected-route";
 
 function NotFound() {
   return (
@@ -34,24 +36,40 @@ function NotFound() {
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/expenses" element={<Expenses />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/owner" element={<Owner />} />
-        <Route path="/owner-register" element={<OwnerRegister />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/roommates" element={<Roommates />} />
-        <Route path="/rooms" element={<Rooms />} />
-        <Route path="/rooms/:roomId" element={<RoomDetails />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Toaster position="top-right" richColors />
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/expenses" element={<Expenses />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/owner" element={<Owner />} />
+          <Route path="/owner-register" element={<OwnerRegister />} />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/register" element={<Register />} />
+          <Route path="/roommates" element={<Roommates />} />
+          <Route path="/rooms" element={<Rooms />} />
+          <Route path="/rooms/:roomId" element={<RoomDetails />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Toaster position="top-right" richColors />
+      </AuthProvider>
     </BrowserRouter>
   );
 }

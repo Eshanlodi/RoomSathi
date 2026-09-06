@@ -1,8 +1,9 @@
-import { Link, NavLink } from "react-router-dom";
-import { Home, Menu, X } from "lucide-react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Home, LogOut, Menu, User, X } from "lucide-react";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 const links = [
   { to: "/", label: "Home" },
   { to: "/rooms", label: "Find Rooms" },
@@ -22,6 +23,15 @@ function Logo() {
 }
 function Navbar() {
   const [open, setOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    setOpen(false);
+    navigate("/");
+  };
+
   return <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Logo />
@@ -37,12 +47,23 @@ function Navbar() {
         </div>
         <div className="hidden items-center gap-2 lg:flex">
           <ThemeToggle />
-          <Button variant="ghost" asChild>
-            <Link to="/login">Login</Link>
-          </Button>
-          <Button variant="hero" asChild>
-            <Link to="/register">Register</Link>
-          </Button>
+          {user ? <>
+              <Button variant="ghost" asChild>
+                <Link to="/dashboard">
+                  <User className="h-4 w-4" /> {user.name?.split(" ")[0]}
+                </Link>
+              </Button>
+              <Button variant="outline" onClick={handleLogout}>
+                <LogOut className="h-4 w-4" /> Logout
+              </Button>
+            </> : <>
+              <Button variant="ghost" asChild>
+                <Link to="/login">Login</Link>
+              </Button>
+              <Button variant="hero" asChild>
+                <Link to="/register">Register</Link>
+              </Button>
+            </>}
         </div>
         <div className="flex items-center gap-1 lg:hidden">
           <ThemeToggle />
@@ -62,16 +83,27 @@ function Navbar() {
                 {l.label}
               </Link>)}
             <div className="mt-2 flex gap-2">
-              <Button variant="outline" className="flex-1" asChild>
-                <Link to="/login" onClick={() => setOpen(false)}>
-                  Login
-                </Link>
-              </Button>
-              <Button variant="hero" className="flex-1" asChild>
-                <Link to="/register" onClick={() => setOpen(false)}>
-                  Register
-                </Link>
-              </Button>
+              {user ? <>
+                  <Button variant="outline" className="flex-1" asChild>
+                    <Link to="/dashboard" onClick={() => setOpen(false)}>
+                      Dashboard
+                    </Link>
+                  </Button>
+                  <Button variant="hero" className="flex-1" onClick={handleLogout}>
+                    Logout
+                  </Button>
+                </> : <>
+                  <Button variant="outline" className="flex-1" asChild>
+                    <Link to="/login" onClick={() => setOpen(false)}>
+                      Login
+                    </Link>
+                  </Button>
+                  <Button variant="hero" className="flex-1" asChild>
+                    <Link to="/register" onClick={() => setOpen(false)}>
+                      Register
+                    </Link>
+                  </Button>
+                </>}
             </div>
           </div>
         </div>}
