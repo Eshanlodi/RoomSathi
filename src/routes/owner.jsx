@@ -1,16 +1,9 @@
-import {
-  BarChart3,
-  Building2,
-  Eye,
-  LayoutDashboard,
-  PlusCircle,
-  User,
-  Users
-} from "lucide-react";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis } from "recharts";
+import { useEffect, useState } from "react";
+import { BarChart3, Building2, Eye, LayoutDashboard, PlusCircle, User, Users } from "lucide-react";
 import { DashboardLayout, StatCard } from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
-import { inr, monthlyStats, rooms } from "@/lib/data";
+import { inr } from "@/lib/data";
+import { api } from "@/lib/api";
 
 const items = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/owner" },
@@ -18,63 +11,72 @@ const items = [
   { label: "My Rooms", icon: Building2, to: "/rooms" },
   { label: "Interested Students", icon: Users, to: "/owner" },
   { label: "Analytics", icon: BarChart3, to: "/owner" },
-  { label: "Profile", icon: User, to: "/profile" }
+  { label: "Profile", icon: User, to: "/profile" },
 ];
+
 function OwnerDashboard() {
-  return <DashboardLayout items={items} role="Owner" title="Owner overview" subtitle="Performance across your listings">
+  const [rooms, setRooms] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [visitRequests, setVisitRequests] = useState([]);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    Promise.all([api.rooms.mine(), api.owner.stats(), api.visitRequests.list()])
+      .then(([roomResults, statsResult, requestResult]) => {
+        setRooms(roomResults);
+        setStats(statsResult);
+        setVisitRequests(requestResult.visitRequests);
+      })
+      .catch((requestError) => setError(requestError.message));
+  }, []);
+
+  return (
+    <DashboardLayout
+      items={items}
+      role="Owner"
+      title="Owner overview"
+      subtitle="Performance across your listings"
+    >
+      {error && (
+        <p className="rounded-xl bg-destructive/10 p-4 text-sm text-destructive">{error}</p>
+      )}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Total rooms" value="12" icon={Building2} hint="+2 this month" />
-        <StatCard label="Active rooms" value="9" icon={PlusCircle} hint="3 pending review" />
-        <StatCard label="Interested students" value="48" icon={Users} hint="+11 this week" />
-        <StatCard label="Total views" value="3,240" icon={Eye} hint="+18% vs last month" />
-      </div>
-
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <section className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-          <h2 className="font-semibold">Listing views</h2>
-          <div className="mt-6 h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyStats}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                <XAxis dataKey="month" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip
-    contentStyle={{
-      background: "var(--card)",
-      border: "1px solid var(--border)",
-      borderRadius: 12,
-      fontSize: 12
-    }}
-  />
-                <Bar dataKey="students" fill="var(--primary)" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-          <h2 className="font-semibold">Interested students</h2>
-          <ul className="mt-4 space-y-4">
-            {[].map((n, i) => <li key={n} className="flex items-center gap-3">
-                <img src={`https://i.pravatar.cc/80?img=${i * 9 + 5}`} alt={n} loading="lazy" className="h-10 w-10 rounded-full object-cover" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{n}</p>
-                  <p className="text-xs text-muted-foreground">Enquired about Sunrise Boys PG</p>
-                </div>
-                <Button size="sm" variant="soft">
-                  Reply
-                </Button>
-              </li>)}
-          </ul>
-        </section>
+        <StatCard
+          label="Total rooms"
+          value={rooms.length}
+          icon={Building2}
+          hint="Live database count"
+        />
+        <StatCard
+          label="Verified rooms"
+          value={rooms.filter((room) => room.verified).length}
+          icon={PlusCircle}
+          hint="Approved listings"
+        />
+        <StatCard
+          label="Interested students"
+          value={stats?.interestedStudents ?? 0}
+          icon={Users}
+          hint="Saved rooms and visit requests"
+        />
+        <StatCard
+          label="Total views"
+          value={stats?.totalViews ?? 0}
+          icon={Eye}
+          hint="Tracked room views"
+        />
       </div>
 
       <section className="mt-8 overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
-        <div className="border-b border-border p-6">
+        <div className="flex items-center justify-between border-b border-border p-6">
           <h2 className="font-semibold">My rooms</h2>
+          <Button size="sm" variant="hero">
+            Add room
+          </Button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-secondary/60 text-left text-xs text-muted-foreground uppercase">
+            <thead className="bg-secondary/60 text-left text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="px-6 py-3">Room</th>
                 <th className="px-6 py-3">City</th>
@@ -83,22 +85,83 @@ function OwnerDashboard() {
               </tr>
             </thead>
             <tbody>
-              {rooms.slice(0, 5).map((r) => <tr key={r.id} className="border-t border-border">
-                  <td className="px-6 py-4 font-medium">{r.name}</td>
-                  <td className="px-6 py-4 text-muted-foreground">{r.city}</td>
-                  <td className="px-6 py-4">{inr(r.rent)}</td>
-                  <td className="px-6 py-4">
-                    <span
-    className={`rounded-full px-2.5 py-1 text-xs font-semibold ${r.verified ? "bg-accent/15 text-accent" : "bg-secondary text-muted-foreground"}`}
-  >
-                      {r.verified ? "Active" : "Pending"}
-                    </span>
-                  </td>
-                </tr>)}
+              {rooms.map((room) => (
+                <tr key={room.id} className="border-t border-border">
+                  <td className="px-6 py-4 font-medium">{room.name}</td>
+                  <td className="px-6 py-4 text-muted-foreground">{room.city}</td>
+                  <td className="px-6 py-4">{inr(room.rent)}</td>
+                  <td className="px-6 py-4">{room.verified ? "Active" : "Pending"}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
+        {!rooms.length && !error && (
+          <p className="p-8 text-center text-sm text-muted-foreground">No rooms listed yet.</p>
+        )}
       </section>
-    </DashboardLayout>;
+
+      <section className="mt-8 rounded-2xl border border-border bg-card p-6 shadow-soft">
+        <h2 className="font-semibold">Interested students and visit requests</h2>
+        <div className="mt-4 space-y-3">
+          {visitRequests.length ? (
+            visitRequests.map((request) => (
+              <div
+                key={request._id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-secondary/50 p-3"
+              >
+                <div>
+                  <p className="text-sm font-semibold">{request.studentId?.name || "Student"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {request.roomId?.name} · {request.status}
+                  </p>
+                </div>
+                {request.status === "pending" && (
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        api.visitRequests
+                          .updateStatus(request._id, "accepted")
+                          .then(() =>
+                            setVisitRequests((items) =>
+                              items.map((item) =>
+                                item._id === request._id ? { ...item, status: "accepted" } : item,
+                              ),
+                            ),
+                          )
+                      }
+                    >
+                      Accept
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        api.visitRequests
+                          .updateStatus(request._id, "rejected")
+                          .then(() =>
+                            setVisitRequests((items) =>
+                              items.map((item) =>
+                                item._id === request._id ? { ...item, status: "rejected" } : item,
+                              ),
+                            ),
+                          )
+                      }
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground">No visit requests yet.</p>
+          )}
+        </div>
+      </section>
+    </DashboardLayout>
+  );
 }
+
 export default OwnerDashboard;
