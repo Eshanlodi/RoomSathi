@@ -54,7 +54,6 @@ function ProfilePage() {
                 className="h-24 w-24 rounded-2xl border-4 border-card object-cover shadow-soft"
               />
               <button
-                onClick={() => document.getElementById("profile-photo")?.click()}
                 type="button"
                 aria-label="Change photo"
                 onClick={() => toast("Photo upload requires storage configuration")}

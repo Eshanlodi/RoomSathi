@@ -4,6 +4,10 @@ import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
 
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function scoreMatch(source, candidate) {
   const fields = [
     "sleepSchedule",
@@ -80,15 +84,19 @@ router.get("/", async (req, res, next) => {
   try {
     const ownProfile = await RoommateProfile.findOne({ userId: req.user._id });
     const filter = { userId: { $ne: req.user._id } };
-    if (req.query.city) filter.city = new RegExp(req.query.city, "i");
-    if (req.query.college) filter.college = new RegExp(req.query.college, "i");
+    if (req.query.city) filter.city = new RegExp(escapeRegex(req.query.city), "i");
+    if (req.query.college) filter.college = new RegExp(escapeRegex(req.query.college), "i");
 
-    const profiles = await RoommateProfile.find(filter).populate("userId", "name avatar").limit(50);
+    const profiles = await RoommateProfile.find(filter)
+      .populate({ path: "userId", select: "name avatar role", match: { role: "student" } })
+      .limit(50);
     return res.json(
-      profiles.map((profile) => ({
-        ...serializeProfile(profile),
-        matchPercentage: ownProfile ? scoreMatch(ownProfile, profile) : undefined,
-      })),
+      profiles
+        .filter((profile) => profile.userId)
+        .map((profile) => ({
+          ...serializeProfile(profile),
+          matchPercentage: ownProfile ? scoreMatch(ownProfile, profile) : undefined,
+        })),
     );
   } catch (error) {
     return next(error);
@@ -97,8 +105,14 @@ router.get("/", async (req, res, next) => {
 
 router.get("/:id", async (req, res, next) => {
   try {
-    const profile = await RoommateProfile.findById(req.params.id).populate("userId", "name avatar");
-    if (!profile) return res.status(404).json({ message: "Roommate profile not found" });
+    const profile = await RoommateProfile.findById(req.params.id).populate({
+      path: "userId",
+      select: "name avatar role",
+      match: { role: "student" },
+    });
+    if (!profile || !profile.userId) {
+      return res.status(404).json({ message: "Roommate profile not found" });
+    }
     return res.json(serializeProfile(profile));
   } catch (error) {
     return next(error);

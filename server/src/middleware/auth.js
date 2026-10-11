@@ -29,6 +29,13 @@ export function requireRole(...roles) {
     if (!req.user || !roles.includes(req.user.role)) {
       return res.status(403).json({ message: "You do not have permission for this action" });
     }
+    if (
+      req.user.role === "owner" &&
+      req.user.ownerApprovalStatus &&
+      req.user.ownerApprovalStatus !== "approved"
+    ) {
+      return res.status(403).json({ message: "Your owner account is not approved yet" });
+    }
 
     return next();
   };

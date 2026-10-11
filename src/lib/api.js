@@ -6,7 +6,7 @@ const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
  * - attaches the JWT from localStorage automatically, if present
  * - parses JSON and throws a real Error (with the backend's message) on failure
  */
-async function request(path, { method = "GET", body, auth = true } = {}) {
+async function request(path, { method = "GET", body, auth = true, signal } = {}) {
   const headers = { "Content-Type": "application/json" };
 
   if (auth) {
@@ -18,6 +18,7 @@ async function request(path, { method = "GET", body, auth = true } = {}) {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
+    signal,
   });
 
   const data = await res.json().catch(() => ({}));
@@ -34,6 +35,10 @@ export const api = {
   auth: {
     register: (payload) =>
       request("/auth/register", { method: "POST", body: payload, auth: false }),
+    sendPhoneOtp: (phone) =>
+      request("/auth/phone-otp/send", { method: "POST", body: { phone }, auth: false }),
+    verifyPhoneOtp: (phone, code) =>
+      request("/auth/phone-otp/verify", { method: "POST", body: { phone, code }, auth: false }),
     login: (payload) => request("/auth/login", { method: "POST", body: payload, auth: false }),
     me: () => request("/auth/me"),
     updateProfile: (payload) => request("/auth/me", { method: "PUT", body: payload }),
@@ -43,14 +48,14 @@ export const api = {
       request("/auth/reset-password", { method: "POST", body: { token, password }, auth: false }),
   },
   rooms: {
-    list: (params = {}) => {
+    list: (params = {}, { signal } = {}) => {
       const filteredParams = Object.fromEntries(
         Object.entries(params).filter(
           ([, value]) => value !== undefined && value !== null && value !== "",
         ),
       );
       const qs = new URLSearchParams(filteredParams).toString();
-      return request(`/rooms${qs ? `?${qs}` : ""}`, { auth: false });
+      return request(`/rooms${qs ? `?${qs}` : ""}`, { auth: false, signal });
     },
     mine: () => request("/rooms/mine"),
     get: (id) => request(`/rooms/${id}`, { auth: false }),
@@ -77,6 +82,9 @@ export const api = {
   admin: {
     users: () => request("/admin/users"),
     stats: () => request("/admin/stats"),
+    ownerRequests: () => request("/admin/owner-requests"),
+    updateOwnerRequest: (id, status) =>
+      request(`/admin/owner-requests/${id}`, { method: "PUT", body: { status } }),
   },
   owner: {
     stats: () => request("/owner/dashboard-stats"),

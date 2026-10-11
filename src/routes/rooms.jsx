@@ -38,12 +38,16 @@ function RoomsPage() {
         sharing: sharing || undefined,
         verified: verifiedOnly ? "true" : undefined,
         facilities: facilities.length ? facilities.join(",") : undefined,
+      }, { signal: controller.signal })
+      .then((rooms) => {
+        if (!controller.signal.aborted) setResults(rooms);
       })
-      .then(setResults)
       .catch((requestError) => {
         if (requestError.name !== "AbortError") setError(requestError.message);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
 
     return () => controller.abort();
   }, [query, budget, city, college, sharing, verifiedOnly, facilities]);
@@ -55,7 +59,7 @@ function RoomsPage() {
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Find your room</h1>
           <p className="mt-2 text-muted-foreground">
-            {results.length} verified stays matching your filters.
+            {results.length} stays matching your filters.
           </p>
           <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-soft sm:flex-row">
             <div className="relative flex-1">
@@ -185,6 +189,21 @@ function RoomsPage() {
               <p className="mt-1 text-sm text-muted-foreground">
                 Try increasing your budget or clearing a filter.
               </p>
+              <Button
+                variant="outline"
+                className="mt-5"
+                onClick={() => {
+                  setQuery("");
+                  setBudget(2e4);
+                  setCity("");
+                  setCollege("");
+                  setSharing("");
+                  setVerifiedOnly(false);
+                  setFacilities([]);
+                }}
+              >
+                Clear filters
+              </Button>
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
