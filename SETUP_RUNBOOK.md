@@ -472,8 +472,11 @@ Use this checklist after starting MongoDB, the API, and the Vite client. Mark ea
 #### Admin dashboard
 
 - [ ] Log in as `admin.roomsathi@gmail.com` with `password123`.
-- [ ] Open `/admin`. Confirm live counts for users, owners, rooms, and reviews.
+- [ ] Open `/admin`. Confirm live counts for students, owners, rooms, reviews, and pending owner requests.
 - [ ] Confirm the Recent users table is populated from the API.
+- [ ] Submit a new owner request at `/owner-register` and confirm it appears in the Owner requests section.
+- [ ] Approve the request and confirm the new owner can sign in and open `/owner`.
+- [ ] Submit another owner request, reject it, and confirm that account cannot sign in.
 - [ ] Confirm an admin can open `/owner` and `/rooms` when needed for administration.
 - [ ] Log out and confirm `/admin` redirects to `/login`.
 - [ ] Log in as a student and confirm `/admin` redirects to `/dashboard`.
@@ -483,6 +486,10 @@ Use this checklist after starting MongoDB, the API, and the Vite client. Mark ea
 - [ ] On `/register`, enter an address such as `tester@example.com`. Confirm the form rejects it and explains that only Gmail is accepted.
 - [ ] Repeat with `tester@gmail.com`. Confirm the request is allowed to reach the server.
 - [ ] Repeat the same two checks on `/owner-register`.
+- [ ] On `/register`, confirm name, phone verification, college, city, and budget are required.
+- [ ] Request a phone code and confirm invalid mobile numbers are rejected. The local OTP is available only outside production.
+- [ ] In production, configure `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `TWILIO_VERIFY_SERVICE_SID` before testing SMS verification.
+- [ ] Confirm signup fails with an incorrect or expired phone code and succeeds only after verification.
 - [ ] On `/login`, use `Forgot Password?`, enter a seeded Gmail address, and confirm a reset request is created.
 - [ ] In local development, copy the displayed development reset token and call the reset endpoint with a new password.
 - [ ] Log in with the new password, then reseed the database if you need to restore the standard demo password.

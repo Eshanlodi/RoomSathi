@@ -7,9 +7,9 @@ import { SiteLayout } from "@/components/layout/site-layout";
 import { Button } from "@/components/ui/button";
 import { Field, FormSection, Select } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PhoneVerificationField } from "@/components/phone-verification-field";
 import { colleges, cities } from "@/lib/data";
 import { useAuth } from "@/context/AuthContext";
-import { api } from "@/lib/api";
 import {
   mapCleanliness,
   mapFoodPreference,
@@ -22,6 +22,7 @@ import {
 function RegisterPage() {
   const [preview, setPreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -47,6 +48,10 @@ function RegisterPage() {
       toast.error("Use a Gmail address ending in @gmail.com");
       return;
     }
+    if (!phoneVerified) {
+      toast.error("Verify your phone number before registering");
+      return;
+    }
     setSubmitting(true);
     try {
       // Step 1: create the account (name, email, password, role, college, phone)
@@ -56,31 +61,19 @@ function RegisterPage() {
         password: form.password,
         role: "student",
         college: form.college,
+        city: form.city,
+        budget: Number(form.budget),
         phone: form.phone,
+        lifestyle: {
+          sleepSchedule: mapSleepSchedule(form.sleep),
+          cleanliness: mapCleanliness(form.clean),
+          smoking: mapYesNo(form.smoke),
+          drinking: mapYesNo(form.drink),
+          guestsFrequency: mapGuestsFrequency(),
+          studyHabits: mapStudyHabits(),
+          foodPreference: mapFoodPreference(form.food),
+        },
       });
-
-      // Step 2: save the lifestyle/roommate-matching details against the new account.
-      // This runs right after register() so the JWT is already set on the request.
-      try {
-        await api.roommates.upsertProfile({
-          college: form.college,
-          city: form.city,
-          budget: Number(form.budget) || 0,
-          lifestyle: {
-            sleepSchedule: mapSleepSchedule(form.sleep),
-            cleanliness: mapCleanliness(form.clean),
-            smoking: mapYesNo(form.smoke),
-            drinking: mapYesNo(form.drink),
-            guestsFrequency: mapGuestsFrequency(),
-            studyHabits: mapStudyHabits(),
-            foodPreference: mapFoodPreference(form.food),
-          },
-        });
-      } catch (profileErr) {
-        // Account creation succeeded even if this secondary step fails - don't block signup over it
-        console.error("Roommate profile save failed:", profileErr.message);
-      }
-
       toast.success("Account created", { description: "Your student profile is ready." });
       navigate("/dashboard", { replace: true });
     } catch (err) {
@@ -136,22 +129,18 @@ function RegisterPage() {
               id="rpassword"
               type="password"
               required
-              minLength={6}
+              minLength={8}
               placeholder="••••••••"
               value={form.password}
               onChange={update("password")}
             />
           </Field>
-          <Field label="Phone" htmlFor="phone">
-            <Input
-              id="phone"
-              type="tel"
-              required
-              placeholder="+91 90000 12345"
-              value={form.phone}
-              onChange={update("phone")}
-            />
-          </Field>
+          <PhoneVerificationField
+            phone={form.phone}
+            onPhoneChange={(value) => setForm((current) => ({ ...current, phone: value }))}
+            verified={phoneVerified}
+            onVerifiedChange={setPhoneVerified}
+          />
           <Field label="Gender" htmlFor="gender">
             <Select id="gender" defaultValue="">
               <option value="" disabled>
@@ -192,7 +181,7 @@ function RegisterPage() {
           description="So we can sort rooms by distance and rent."
         >
           <Field label="College" htmlFor="college">
-            <Select id="college" value={form.college} onChange={update("college")}>
+            <Select id="college" required value={form.college} onChange={update("college")}>
               <option value="" disabled>
                 Select college
               </option>
@@ -202,7 +191,7 @@ function RegisterPage() {
             </Select>
           </Field>
           <Field label="City" htmlFor="city">
-            <Select id="city" value={form.city} onChange={update("city")}>
+            <Select id="city" required value={form.city} onChange={update("city")}>
               <option value="" disabled>
                 Select city
               </option>
@@ -215,7 +204,9 @@ function RegisterPage() {
             <Input
               id="budget"
               type="number"
-              min={1e3}
+              required
+              min={1000}
+              max={1000000}
               step={500}
               placeholder="8000"
               value={form.budget}

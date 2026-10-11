@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuth } from "@/context/AuthContext";
+import { PhoneVerificationField } from "@/components/phone-verification-field";
+import { api } from "@/lib/api";
 
 function OwnerRegisterPage() {
   const [preview, setPreview] = useState(null);
-  const { register } = useAuth();
+  const [phone, setPhone] = useState("");
+  const [phoneVerified, setPhoneVerified] = useState(false);
   const navigate = useNavigate();
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -22,20 +24,24 @@ function OwnerRegisterPage() {
       toast.error("Use a Gmail address ending in @gmail.com");
       return;
     }
+    if (!phoneVerified) {
+      toast.error("Verify your phone number before submitting");
+      return;
+    }
     try {
-      await register({
+      await api.auth.register({
         name: form.get("name"),
         email,
         password: form.get("password"),
-        phone: form.get("phone"),
+        phone,
         aadhaar: form.get("aadhaar"),
         address: form.get("address"),
         role: "owner",
       });
-      toast.success("Owner account created", {
-        description: "Verification usually takes 24 hours.",
+      toast.success("Owner request submitted", {
+        description: "You can sign in after an admin approves your request.",
       });
-      navigate("/owner", { replace: true });
+      navigate("/", { replace: true });
     } catch (error) {
       toast.error("Registration failed", { description: error.message });
     }
@@ -89,7 +95,7 @@ function OwnerRegisterPage() {
           onSubmit={onSubmit}
           className="space-y-4 rounded-3xl border border-border bg-card p-8 shadow-lift"
         >
-          <h2 className="text-xl font-bold">Create owner account</h2>
+          <h2 className="text-xl font-bold">Request an owner account</h2>
           <Field label="Name" htmlFor="oname">
             <Input name="name" id="oname" required placeholder="Rakesh Deshmukh" />
           </Field>
@@ -109,13 +115,16 @@ function OwnerRegisterPage() {
               id="opassword"
               type="password"
               required
-              minLength={6}
+              minLength={8}
               placeholder="••••••••"
             />
           </Field>
-          <Field label="Phone" htmlFor="ophone">
-            <Input name="phone" id="ophone" type="tel" required placeholder="+91 98230 11223" />
-          </Field>
+          <PhoneVerificationField
+            phone={phone}
+            onPhoneChange={setPhone}
+            verified={phoneVerified}
+            onVerifiedChange={setPhoneVerified}
+          />
           <Field label="Aadhaar Number" htmlFor="aadhaar">
             <Input
               name="aadhaar"
@@ -158,7 +167,7 @@ function OwnerRegisterPage() {
             </label>
           </Field>
           <Button type="submit" variant="hero" size="xl" className="w-full">
-            Register
+            Submit for review
           </Button>
           <p className="text-center text-sm text-muted-foreground">
             Already listed with us?{" "}

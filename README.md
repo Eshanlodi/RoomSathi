@@ -58,12 +58,19 @@ The API uses `server/.env`:
 
 ```dotenv
 PORT=5000
+NODE_ENV=development
 MONGODB_URI=mongodb://127.0.0.1:27017/roomsathi
 JWT_SECRET=replace-with-a-long-random-secret
 CLIENT_URL=http://localhost:5173
+TRUST_PROXY_HOPS=0
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_VERIFY_SERVICE_SID=
 ```
 
 Never commit `.env` files or expose `MONGODB_URI` and `JWT_SECRET` to the browser.
+Production phone verification requires a Twilio Verify service and all three `TWILIO_*` server secrets. A one-time development code is returned only when `NODE_ENV=development`; all other environments fail closed unless Twilio is configured.
+If the API is behind a reverse proxy, set `TRUST_PROXY_HOPS` to the exact number of trusted proxies and configure a shared rate-limit store when running multiple API instances.
 
 ## Validation
 

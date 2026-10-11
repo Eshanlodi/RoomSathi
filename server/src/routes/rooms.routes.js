@@ -5,6 +5,15 @@ import { requireAuth, requireRole } from "../middleware/auth.js";
 
 const router = Router();
 
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function facilityVariants(value) {
+  if (value.toLowerCase().replace(/[\s-]/g, "") === "wifi") return ["WiFi", "Wi-Fi"];
+  return [value];
+}
+
 function roomId(room) {
   return room._id.toString();
 }
@@ -56,16 +65,23 @@ router.get("/", async (req, res, next) => {
     const { city, college, budget, verified, sharing, q, facilities, limit } = req.query;
     const filter = {};
 
-    if (city) filter.city = new RegExp(city, "i");
-    if (college) filter.college = new RegExp(college, "i");
+    if (city) filter.city = new RegExp(escapeRegex(city), "i");
+    if (college) filter.college = new RegExp(escapeRegex(college), "i");
     if (q) {
-      const search = new RegExp(q, "i");
+      const search = new RegExp(escapeRegex(q), "i");
       filter.$or = [{ name: search }, { city: search }, { college: search }];
     }
     if (budget && Number.isFinite(Number(budget))) filter.rent = { $lte: Number(budget) };
     if (verified === "true") filter.verified = true;
     if (sharing) filter.sharing = sharing;
-    if (facilities) filter.facilities = { $all: facilities.split(",").filter(Boolean) };
+    if (facilities) {
+      const requestedFacilities = facilities.split(",").filter(Boolean);
+      if (requestedFacilities.length) {
+        filter.$and = requestedFacilities.map((facility) => ({
+          facilities: { $in: facilityVariants(facility) },
+        }));
+      }
+    }
 
     const query = Room.find(filter)
       .populate("ownerId", "name phone createdAt")
