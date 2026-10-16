@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { BadgeCheck, IndianRupee, Upload, Users } from "lucide-react";
 import { useState } from "react";
@@ -8,14 +8,40 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/context/AuthContext";
 
 function OwnerRegisterPage() {
   const [preview, setPreview] = useState(null);
-  const onSubmit = (e) => {
+  const { register } = useAuth();
+  const navigate = useNavigate();
+  const onSubmit = async (e) => {
     e.preventDefault();
-    toast.success("Owner account created", { description: "Verification usually takes 24 hours." });
+    const form = new FormData(e.currentTarget);
+    const email = form.get("email");
+    if (!/^[^\s@]+@gmail\.com$/i.test(email)) {
+      toast.error("Use a Gmail address ending in @gmail.com");
+      return;
+    }
+    try {
+      await register({
+        name: form.get("name"),
+        email,
+        password: form.get("password"),
+        phone: form.get("phone"),
+        aadhaar: form.get("aadhaar"),
+        address: form.get("address"),
+        role: "owner",
+      });
+      toast.success("Owner account created", {
+        description: "Verification usually takes 24 hours.",
+      });
+      navigate("/owner", { replace: true });
+    } catch (error) {
+      toast.error("Registration failed", { description: error.message });
+    }
   };
-  return <SiteLayout>
+  return (
+    <SiteLayout>
       <section className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8">
         <div className="space-y-6">
           <p className="text-sm font-semibold text-primary">For property owners</p>
@@ -28,10 +54,22 @@ function OwnerRegisterPage() {
           </p>
           <div className="space-y-4">
             {[
-    { icon: IndianRupee, t: "Zero commission", b: "Keep 100% of the rent you collect." },
-    { icon: Users, t: "Genuine students", b: "Every enquiry comes from a verified college student." },
-    { icon: BadgeCheck, t: "Verified badge", b: "Verified listings get 3x more visits on average." }
-  ].map((i) => <div key={i.t} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft">
+              { icon: IndianRupee, t: "Zero commission", b: "Keep 100% of the rent you collect." },
+              {
+                icon: Users,
+                t: "Genuine students",
+                b: "Every enquiry comes from a verified college student.",
+              },
+              {
+                icon: BadgeCheck,
+                t: "Verified badge",
+                b: "Verified listings get 3x more visits on average.",
+              },
+            ].map((i) => (
+              <div
+                key={i.t}
+                className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft"
+              >
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 text-accent">
                   <i.icon className="h-5 w-5" />
                 </span>
@@ -39,53 +77,84 @@ function OwnerRegisterPage() {
                   <p className="font-semibold">{i.t}</p>
                   <p className="text-sm text-muted-foreground">{i.b}</p>
                 </div>
-              </div>)}
+              </div>
+            ))}
           </div>
         </div>
 
         <motion.form
-    initial={{ opacity: 0, y: 16 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.4 }}
-    onSubmit={onSubmit}
-    className="space-y-4 rounded-3xl border border-border bg-card p-8 shadow-lift"
-  >
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          onSubmit={onSubmit}
+          className="space-y-4 rounded-3xl border border-border bg-card p-8 shadow-lift"
+        >
           <h2 className="text-xl font-bold">Create owner account</h2>
           <Field label="Name" htmlFor="oname">
-            <Input id="oname" required placeholder="Rakesh Deshmukh" />
+            <Input name="name" id="oname" required placeholder="Rakesh Deshmukh" />
           </Field>
           <Field label="Email" htmlFor="oemail">
-            <Input id="oemail" type="email" required placeholder="owner@email.com" />
+            <Input
+              name="email"
+              id="oemail"
+              type="email"
+              required
+              pattern="[^\s@]+@gmail\.com"
+              placeholder="owner@gmail.com"
+            />
           </Field>
           <Field label="Password" htmlFor="opassword">
-            <Input id="opassword" type="password" required placeholder="••••••••" />
+            <Input
+              name="password"
+              id="opassword"
+              type="password"
+              required
+              minLength={6}
+              placeholder="••••••••"
+            />
           </Field>
           <Field label="Phone" htmlFor="ophone">
-            <Input id="ophone" type="tel" required placeholder="+91 98230 11223" />
+            <Input name="phone" id="ophone" type="tel" required placeholder="+91 98230 11223" />
           </Field>
           <Field label="Aadhaar Number" htmlFor="aadhaar">
-            <Input id="aadhaar" required inputMode="numeric" placeholder="XXXX XXXX XXXX" />
+            <Input
+              name="aadhaar"
+              id="aadhaar"
+              required
+              inputMode="numeric"
+              placeholder="XXXX XXXX XXXX"
+            />
           </Field>
           <Field label="Address" htmlFor="address">
-            <Textarea id="address" required rows={3} placeholder="Flat / building, street, area, city, PIN" />
+            <Textarea
+              name="address"
+              id="address"
+              required
+              rows={3}
+              placeholder="Flat / building, street, area, city, PIN"
+            />
           </Field>
           <Field label="Profile Image" htmlFor="oavatar">
             <label
-    htmlFor="oavatar"
-    className="flex cursor-pointer items-center gap-3 rounded-md border border-dashed border-input px-3 py-2 text-sm text-muted-foreground hover:border-primary hover:text-primary"
-  >
-              {preview ? <img src={preview} alt="Preview" className="h-8 w-8 rounded-full object-cover" /> : <Upload className="h-4 w-4" />}
+              htmlFor="oavatar"
+              className="flex cursor-pointer items-center gap-3 rounded-md border border-dashed border-input px-3 py-2 text-sm text-muted-foreground hover:border-primary hover:text-primary"
+            >
+              {preview ? (
+                <img src={preview} alt="Preview" className="h-8 w-8 rounded-full object-cover" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
               {preview ? "Change image" : "Upload image"}
               <input
-    id="oavatar"
-    type="file"
-    accept="image/*"
-    className="hidden"
-    onChange={(e) => {
-      const file = e.target.files?.[0];
-      if (file) setPreview(URL.createObjectURL(file));
-    }}
-  />
+                id="oavatar"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) setPreview(URL.createObjectURL(file));
+                }}
+              />
             </label>
           </Field>
           <Button type="submit" variant="hero" size="xl" className="w-full">
@@ -99,6 +168,7 @@ function OwnerRegisterPage() {
           </p>
         </motion.form>
       </section>
-    </SiteLayout>;
+    </SiteLayout>
+  );
 }
 export default OwnerRegisterPage;
