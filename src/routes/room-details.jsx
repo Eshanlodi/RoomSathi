@@ -7,31 +7,74 @@ import {
   Phone,
   Share2,
   ShieldCheck,
-  Star
+  Star,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/site-layout";
 import { RoomCard } from "@/components/room-card";
 import { Button } from "@/components/ui/button";
-import { inr, roomReviews, rooms } from "@/lib/data";
+import { inr } from "@/lib/data";
+import { api } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 function RoomDetails() {
   const { roomId } = useParams();
+  const { isAuthenticated } = useAuth();
   const [active, setActive] = useState(0);
-  const room = rooms.find((r) => r.id === roomId);
+  const [room, setRoom] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [similar, setSimilar] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([api.rooms.get(roomId), api.rooms.reviews(roomId), api.rooms.list({ limit: 4 })])
+      .then(([roomData, reviewData, roomList]) => {
+        setRoom(roomData);
+        setReviews(reviewData);
+        setSimilar(roomList.filter((item) => item.id !== roomId).slice(0, 3));
+        const recentRooms = JSON.parse(localStorage.getItem("recentRooms") || "[]");
+        localStorage.setItem(
+          "recentRooms",
+          JSON.stringify([roomId, ...recentRooms.filter((id) => id !== roomId)].slice(0, 6)),
+        );
+      })
+      .catch(() => setRoom(null))
+      .finally(() => setLoading(false));
+  }, [roomId]);
+
+  if (loading) {
+    return (
+      <SiteLayout>
+        <div className="mx-auto max-w-3xl px-4 py-20 text-center text-muted-foreground">
+          Loading room...
+        </div>
+      </SiteLayout>
+    );
+  }
 
   if (!room) {
-    return <SiteLayout>
-      <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight">Room not found</h1>
-        <p className="mt-3 text-muted-foreground">The room you are looking for does not exist or may have been removed.</p>
-        <Link to="/rooms" className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Back to rooms</Link>
-      </div>
-    </SiteLayout>;
+    return (
+      <SiteLayout>
+        <div className="mx-auto max-w-3xl px-4 py-20 text-center">
+          <h1 className="text-4xl font-extrabold tracking-tight">Room not found</h1>
+          <p className="mt-3 text-muted-foreground">
+            The room you are looking for does not exist or may have been removed.
+          </p>
+          <Link
+            to="/rooms"
+            className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          >
+            Back to rooms
+          </Link>
+        </div>
+      </SiteLayout>
+    );
   }
-  const similar = rooms.filter((r) => r.id !== room.id).slice(0, 3);
-  return <SiteLayout>
+  const gallery = room.images?.length ? room.images : ["/room1.jpeg"];
+  return (
+    <SiteLayout>
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <nav className="text-sm text-muted-foreground">
           <Link to="/rooms" className="hover:text-primary">
@@ -51,9 +94,11 @@ function RoomDetails() {
                 <Star className="h-4 w-4 fill-accent text-accent" /> {room.rating} ({room.reviews}{" "}
                 reviews)
               </span>
-              {room.verified && <span className="flex items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 text-accent">
+              {room.verified && (
+                <span className="flex items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 text-accent">
                   <BadgeCheck className="h-4 w-4" /> Verified
-                </span>}
+                </span>
+              )}
             </p>
           </div>
           <Button variant="outline" onClick={() => toast.success("Link copied to clipboard")}>
@@ -61,23 +106,28 @@ function RoomDetails() {
           </Button>
         </div>
 
-        {
-    /* Gallery */
-  }
+        {/* Gallery */}
         <div className="mt-6 grid gap-3 lg:grid-cols-[2fr_1fr]">
           <img
-    src={room.images[active]}
-    alt={room.name}
-    className="h-[280px] w-full rounded-2xl object-cover shadow-soft sm:h-[440px]"
-  />
+            src={gallery[active]}
+            alt={room.name}
+            className="h-[280px] w-full rounded-2xl object-cover shadow-soft sm:h-[440px]"
+          />
           <div className="grid grid-cols-4 gap-3 lg:grid-cols-2">
-            {room.images.map((src, i) => <button
-    key={src + i}
-    onClick={() => setActive(i)}
-    className={`overflow-hidden rounded-xl border-2 transition-all ${active === i ? "border-primary" : "border-transparent opacity-80 hover:opacity-100"}`}
-  >
-                <img src={src} alt="" loading="lazy" className="h-20 w-full object-cover lg:h-[104px]" />
-              </button>)}
+            {gallery.map((src, i) => (
+              <button
+                key={src + i}
+                onClick={() => setActive(i)}
+                className={`overflow-hidden rounded-xl border-2 transition-all ${active === i ? "border-primary" : "border-transparent opacity-80 hover:opacity-100"}`}
+              >
+                <img
+                  src={src}
+                  alt=""
+                  loading="lazy"
+                  className="h-20 w-full object-cover lg:h-[104px]"
+                />
+              </button>
+            ))}
           </div>
         </div>
 
@@ -87,26 +137,32 @@ function RoomDetails() {
               <h2 className="font-semibold">Room information</h2>
               <div className="mt-4 grid gap-4 sm:grid-cols-4">
                 {[
-    { k: "Rent", v: `${inr(room.rent)}/mo` },
-    { k: "Deposit", v: inr(room.deposit) },
-    { k: "Sharing", v: room.sharing },
-    { k: "Type", v: room.type }
-  ].map((i) => <div key={i.k} className="rounded-xl bg-secondary/60 p-4">
+                  { k: "Rent", v: `${inr(room.rent)}/mo` },
+                  { k: "Deposit", v: inr(room.deposit) },
+                  { k: "Sharing", v: room.sharing },
+                  { k: "Type", v: room.type },
+                ].map((i) => (
+                  <div key={i.k} className="rounded-xl bg-secondary/60 p-4">
                     <p className="text-xs text-muted-foreground">{i.k}</p>
                     <p className="mt-1 font-semibold">{i.v}</p>
-                  </div>)}
+                  </div>
+                ))}
               </div>
               <h3 className="mt-6 text-sm font-semibold">Facilities</h3>
               <div className="mt-3 flex flex-wrap gap-2">
-                {room.facilities.map((f) => <span
-    key={f}
-    className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground"
-  >
+                {room.facilities.map((f) => (
+                  <span
+                    key={f}
+                    className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground"
+                  >
                     {f}
-                  </span>)}
+                  </span>
+                ))}
               </div>
               <h3 className="mt-6 text-sm font-semibold">Description</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{room.description}</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {room.description}
+              </p>
             </section>
 
             <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
@@ -131,16 +187,24 @@ function RoomDetails() {
             <section className="rounded-2xl border border-border bg-card p-6 shadow-soft">
               <h2 className="font-semibold">Student reviews</h2>
               <div className="mt-5 space-y-5">
-                {roomReviews.map((r) => <div key={r.name} className="border-b border-border pb-5 last:border-0 last:pb-0">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold">{r.name}</p>
-                      <span className="text-xs text-muted-foreground">{r.date}</span>
+                {reviews.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No reviews yet.</p>
+                ) : (
+                  reviews.map((r) => (
+                    <div key={r.id} className="border-b border-border pb-5 last:border-0 last:pb-0">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold">{r.name}</p>
+                        <span className="text-xs text-muted-foreground">{r.date}</span>
+                      </div>
+                      <div className="mt-1 flex gap-0.5">
+                        {Array.from({ length: r.rating }).map((_, i) => (
+                          <Star key={i} className="h-3.5 w-3.5 fill-accent text-accent" />
+                        ))}
+                      </div>
+                      <p className="mt-2 text-sm text-muted-foreground">{r.text}</p>
                     </div>
-                    <div className="mt-1 flex gap-0.5">
-                      {Array.from({ length: r.rating }).map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-accent text-accent" />)}
-                    </div>
-                    <p className="mt-2 text-sm text-muted-foreground">{r.text}</p>
-                  </div>)}
+                  ))
+                )}
               </div>
             </section>
           </div>
@@ -164,13 +228,39 @@ function RoomDetails() {
                 </div>
               </div>
               <div className="mt-5 space-y-2">
-                <Button variant="hero" size="xl" className="w-full" onClick={() => toast.success("Visit request sent")}>
+                <Button
+                  variant="hero"
+                  size="xl"
+                  className="w-full"
+                  onClick={async () => {
+                    if (!isAuthenticated) {
+                      toast.error("Please log in to request a visit");
+                      return;
+                    }
+                    try {
+                      await api.visitRequests.create({ roomId });
+                      toast.success("Visit request sent");
+                    } catch (error) {
+                      toast.error(error.message);
+                    }
+                  }}
+                >
                   <CalendarCheck /> Book Visit
                 </Button>
-                <Button variant="outline" size="xl" className="w-full" onClick={() => toast("Calling " + room.owner.phone)}>
+                <Button
+                  variant="outline"
+                  size="xl"
+                  className="w-full"
+                  onClick={() => toast("Calling " + room.owner.phone)}
+                >
                   <Phone /> Call Owner
                 </Button>
-                <Button variant="accent" size="xl" className="w-full" onClick={() => toast("Opening WhatsApp chat")}>
+                <Button
+                  variant="accent"
+                  size="xl"
+                  className="w-full"
+                  onClick={() => toast("Opening WhatsApp chat")}
+                >
                   <MessageCircle /> WhatsApp Owner
                 </Button>
               </div>
@@ -185,10 +275,13 @@ function RoomDetails() {
         <section className="mt-16">
           <h2 className="text-2xl font-bold tracking-tight">Similar rooms</h2>
           <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {similar.map((r, i) => <RoomCard key={r.id} room={r} index={i} />)}
+            {similar.map((r, i) => (
+              <RoomCard key={r.id} room={r} index={i} />
+            ))}
           </div>
         </section>
       </div>
-    </SiteLayout>;
+    </SiteLayout>
+  );
 }
 export default RoomDetails;

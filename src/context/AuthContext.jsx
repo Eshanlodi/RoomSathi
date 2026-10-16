@@ -27,14 +27,14 @@ export function AuthProvider({ children }) {
   const login = async ({ email, password }) => {
     const data = await api.auth.login({ email, password });
     localStorage.setItem("token", data.token);
-    setUser(data);
+    setUser(data.user ?? data);
     return data;
   };
 
   const register = async (payload) => {
     const data = await api.auth.register(payload);
     localStorage.setItem("token", data.token);
-    setUser(data);
+    setUser(data.user ?? data);
     return data;
   };
 
@@ -43,8 +43,16 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const updateProfile = async (payload) => {
+    const data = await api.auth.updateProfile(payload);
+    setUser(data.user);
+    return data.user;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, register, updateProfile, logout, isAuthenticated: !!user }}
+    >
       {children}
     </AuthContext.Provider>
   );

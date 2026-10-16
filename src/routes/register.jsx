@@ -7,9 +7,9 @@ import { SiteLayout } from "@/components/layout/site-layout";
 import { Button } from "@/components/ui/button";
 import { Field, FormSection, Select } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PhoneVerificationField } from "@/components/phone-verification-field";
 import { colleges, cities } from "@/lib/data";
 import { useAuth } from "@/context/AuthContext";
-import { api } from "@/lib/api";
 import {
   mapCleanliness,
   mapFoodPreference,
@@ -22,6 +22,7 @@ import {
 function RegisterPage() {
   const [preview, setPreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -43,6 +44,14 @@ function RegisterPage() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    if (!/^[^\s@]+@gmail\.com$/i.test(form.email)) {
+      toast.error("Use a Gmail address ending in @gmail.com");
+      return;
+    }
+    if (!phoneVerified) {
+      toast.error("Verify your phone number before registering");
+      return;
+    }
     setSubmitting(true);
     try {
       // Step 1: create the account (name, email, password, role, college, phone)
@@ -52,31 +61,19 @@ function RegisterPage() {
         password: form.password,
         role: "student",
         college: form.college,
+        city: form.city,
+        budget: Number(form.budget),
         phone: form.phone,
+        lifestyle: {
+          sleepSchedule: mapSleepSchedule(form.sleep),
+          cleanliness: mapCleanliness(form.clean),
+          smoking: mapYesNo(form.smoke),
+          drinking: mapYesNo(form.drink),
+          guestsFrequency: mapGuestsFrequency(),
+          studyHabits: mapStudyHabits(),
+          foodPreference: mapFoodPreference(form.food),
+        },
       });
-
-      // Step 2: save the lifestyle/roommate-matching details against the new account.
-      // This runs right after register() so the JWT is already set on the request.
-      try {
-        await api.roommates.upsertProfile({
-          college: form.college,
-          city: form.city,
-          budget: Number(form.budget) || 0,
-          lifestyle: {
-            sleepSchedule: mapSleepSchedule(form.sleep),
-            cleanliness: mapCleanliness(form.clean),
-            smoking: mapYesNo(form.smoke),
-            drinking: mapYesNo(form.drink),
-            guestsFrequency: mapGuestsFrequency(),
-            studyHabits: mapStudyHabits(),
-            foodPreference: mapFoodPreference(form.food),
-          },
-        });
-      } catch (profileErr) {
-        // Account creation succeeded even if this secondary step fails - don't block signup over it
-        console.error("Roommate profile save failed:", profileErr.message);
-      }
-
       toast.success("Account created", { description: "Your student profile is ready." });
       navigate("/dashboard", { replace: true });
     } catch (err) {
@@ -85,7 +82,8 @@ function RegisterPage() {
       setSubmitting(false);
     }
   };
-  return <SiteLayout>
+  return (
+    <SiteLayout>
       <div className="gradient-soft border-b border-border">
         <div className="mx-auto max-w-4xl px-4 py-12 text-center sm:px-6">
           <p className="text-sm font-semibold text-primary">Student sign up</p>
@@ -99,25 +97,50 @@ function RegisterPage() {
       </div>
 
       <motion.form
-    initial={{ opacity: 0, y: 16 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.4 }}
-    onSubmit={onSubmit}
-    className="mx-auto max-w-4xl space-y-6 px-4 py-12 sm:px-6"
-  >
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        onSubmit={onSubmit}
+        className="mx-auto max-w-4xl space-y-6 px-4 py-12 sm:px-6"
+      >
         <FormSection title="Account details" description="How you log in and how owners reach you.">
           <Field label="Full Name" htmlFor="fullName">
-            <Input id="fullName" required placeholder="Aditi Joshi" value={form.fullName} onChange={update("fullName")} />
+            <Input
+              id="fullName"
+              required
+              placeholder="Aditi Joshi"
+              value={form.fullName}
+              onChange={update("fullName")}
+            />
           </Field>
           <Field label="Email" htmlFor="remail">
-            <Input id="remail" type="email" required placeholder="you@college.edu" value={form.email} onChange={update("email")} />
+            <Input
+              id="remail"
+              type="email"
+              required
+              pattern="[^\s@]+@gmail\.com"
+              placeholder="you@gmail.com"
+              value={form.email}
+              onChange={update("email")}
+            />
           </Field>
           <Field label="Password" htmlFor="rpassword">
-            <Input id="rpassword" type="password" required minLength={6} placeholder="••••••••" value={form.password} onChange={update("password")} />
+            <Input
+              id="rpassword"
+              type="password"
+              required
+              minLength={8}
+              placeholder="••••••••"
+              value={form.password}
+              onChange={update("password")}
+            />
           </Field>
-          <Field label="Phone" htmlFor="phone">
-            <Input id="phone" type="tel" required placeholder="+91 90000 12345" value={form.phone} onChange={update("phone")} />
-          </Field>
+          <PhoneVerificationField
+            phone={form.phone}
+            onPhoneChange={(value) => setForm((current) => ({ ...current, phone: value }))}
+            verified={phoneVerified}
+            onVerifiedChange={setPhoneVerified}
+          />
           <Field label="Gender" htmlFor="gender">
             <Select id="gender" defaultValue="">
               <option value="" disabled>
@@ -130,44 +153,65 @@ function RegisterPage() {
           </Field>
           <Field label="Profile Picture" htmlFor="avatar">
             <label
-    htmlFor="avatar"
-    className="flex cursor-pointer items-center gap-3 rounded-md border border-dashed border-input px-3 py-2 text-sm text-muted-foreground hover:border-primary hover:text-primary"
-  >
-              {preview ? <img src={preview} alt="Preview" className="h-8 w-8 rounded-full object-cover" /> : <Upload className="h-4 w-4" />}
+              htmlFor="avatar"
+              className="flex cursor-pointer items-center gap-3 rounded-md border border-dashed border-input px-3 py-2 text-sm text-muted-foreground hover:border-primary hover:text-primary"
+            >
+              {preview ? (
+                <img src={preview} alt="Preview" className="h-8 w-8 rounded-full object-cover" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
               {preview ? "Change photo" : "Upload photo"}
               <input
-    id="avatar"
-    type="file"
-    accept="image/*"
-    className="hidden"
-    onChange={(e) => {
-      const file = e.target.files?.[0];
-      if (file) setPreview(URL.createObjectURL(file));
-    }}
-  />
+                id="avatar"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) setPreview(URL.createObjectURL(file));
+                }}
+              />
             </label>
           </Field>
         </FormSection>
 
-        <FormSection title="College & budget" description="So we can sort rooms by distance and rent.">
+        <FormSection
+          title="College & budget"
+          description="So we can sort rooms by distance and rent."
+        >
           <Field label="College" htmlFor="college">
-            <Select id="college" value={form.college} onChange={update("college")}>
+            <Select id="college" required value={form.college} onChange={update("college")}>
               <option value="" disabled>
                 Select college
               </option>
-              {colleges.map((c) => <option key={c}>{c}</option>)}
+              {colleges.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
             </Select>
           </Field>
           <Field label="City" htmlFor="city">
-            <Select id="city" value={form.city} onChange={update("city")}>
+            <Select id="city" required value={form.city} onChange={update("city")}>
               <option value="" disabled>
                 Select city
               </option>
-              {cities.map((c) => <option key={c}>{c}</option>)}
+              {cities.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
             </Select>
           </Field>
           <Field label="Monthly Budget (₹)" htmlFor="budget">
-            <Input id="budget" type="number" min={1e3} step={500} placeholder="8000" value={form.budget} onChange={update("budget")} />
+            <Input
+              id="budget"
+              type="number"
+              required
+              min={1000}
+              max={1000000}
+              step={500}
+              placeholder="8000"
+              value={form.budget}
+              onChange={update("budget")}
+            />
           </Field>
           <Field label="Preferred Sharing" htmlFor="sharing">
             <Select id="sharing" defaultValue="Double">
@@ -228,7 +272,13 @@ function RegisterPage() {
         </FormSection>
 
         <div className="flex flex-col items-center gap-3">
-          <Button type="submit" variant="hero" size="xl" className="w-full sm:w-64" disabled={submitting}>
+          <Button
+            type="submit"
+            variant="hero"
+            size="xl"
+            className="w-full sm:w-64"
+            disabled={submitting}
+          >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Register"}
           </Button>
           <p className="text-sm text-muted-foreground">
@@ -239,6 +289,7 @@ function RegisterPage() {
           </p>
         </div>
       </motion.form>
-    </SiteLayout>;
+    </SiteLayout>
+  );
 }
 export default RegisterPage;

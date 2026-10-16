@@ -6,7 +6,7 @@ const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
  * - attaches the JWT from localStorage automatically, if present
  * - parses JSON and throws a real Error (with the backend's message) on failure
  */
-async function request(path, { method = "GET", body, auth = true } = {}) {
+async function request(path, { method = "GET", body, auth = true, signal } = {}) {
   const headers = { "Content-Type": "application/json" };
 
   if (auth) {
@@ -18,6 +18,7 @@ async function request(path, { method = "GET", body, auth = true } = {}) {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
+    signal,
   });
 
   const data = await res.json().catch(() => ({}));
@@ -32,29 +33,91 @@ async function request(path, { method = "GET", body, auth = true } = {}) {
 
 export const api = {
   auth: {
-    register: (payload) => request("/auth/register", { method: "POST", body: payload, auth: false }),
+    register: (payload) =>
+      request("/auth/register", { method: "POST", body: payload, auth: false }),
+    sendPhoneOtp: (phone) =>
+      request("/auth/phone-otp/send", { method: "POST", body: { phone }, auth: false }),
+    verifyPhoneOtp: (phone, code) =>
+      request("/auth/phone-otp/verify", { method: "POST", body: { phone, code }, auth: false }),
     login: (payload) => request("/auth/login", { method: "POST", body: payload, auth: false }),
     me: () => request("/auth/me"),
     updateProfile: (payload) => request("/auth/me", { method: "PUT", body: payload }),
+    forgotPassword: (email) =>
+      request("/auth/forgot-password", { method: "POST", body: { email }, auth: false }),
+    resetPassword: (token, password) =>
+      request("/auth/reset-password", { method: "POST", body: { token, password }, auth: false }),
   },
   rooms: {
-    list: (params = {}) => {
-      const qs = new URLSearchParams(params).toString();
-      return request(`/rooms${qs ? `?${qs}` : ""}`, { auth: false });
+    list: (params = {}, { signal } = {}) => {
+      const filteredParams = Object.fromEntries(
+        Object.entries(params).filter(
+          ([, value]) => value !== undefined && value !== null && value !== "",
+        ),
+      );
+      const qs = new URLSearchParams(filteredParams).toString();
+      return request(`/rooms${qs ? `?${qs}` : ""}`, { auth: false, signal });
     },
+    mine: () => request("/rooms/mine"),
     get: (id) => request(`/rooms/${id}`, { auth: false }),
     create: (payload) => request("/rooms", { method: "POST", body: payload }),
     update: (id, payload) => request(`/rooms/${id}`, { method: "PUT", body: payload }),
     remove: (id) => request(`/rooms/${id}`, { method: "DELETE" }),
     reviews: (roomId) => request(`/rooms/${roomId}/reviews`, { auth: false }),
-    addReview: (roomId, payload) => request(`/rooms/${roomId}/reviews`, { method: "POST", body: payload }),
+    addReview: (roomId, payload) =>
+      request(`/rooms/${roomId}/reviews`, { method: "POST", body: payload }),
   },
   roommates: {
     upsertProfile: (payload) => request("/roommates", { method: "POST", body: payload }),
     list: (params = {}) => {
-      const qs = new URLSearchParams(params).toString();
+      const filteredParams = Object.fromEntries(
+        Object.entries(params).filter(
+          ([, value]) => value !== undefined && value !== null && value !== "",
+        ),
+      );
+      const qs = new URLSearchParams(filteredParams).toString();
       return request(`/roommates${qs ? `?${qs}` : ""}`);
     },
     get: (id) => request(`/roommates/${id}`),
+  },
+  admin: {
+    users: () => request("/admin/users"),
+    stats: () => request("/admin/stats"),
+    ownerRequests: () => request("/admin/owner-requests"),
+    updateOwnerRequest: (id, status) =>
+      request(`/admin/owner-requests/${id}`, { method: "PUT", body: { status } }),
+  },
+  owner: {
+    stats: () => request("/owner/dashboard-stats"),
+  },
+  wishlists: {
+    list: () => request("/wishlists"),
+    add: (roomId) => request("/wishlists", { method: "POST", body: { roomId } }),
+    remove: (roomId) => request(`/wishlists/${roomId}`, { method: "DELETE" }),
+  },
+  notifications: {
+    list: () => request("/notifications"),
+    markRead: (id) => request(`/notifications/${id}/read`, { method: "PUT" }),
+    remove: (id) => request(`/notifications/${id}`, { method: "DELETE" }),
+  },
+  visitRequests: {
+    list: () => request("/visit-requests"),
+    create: (payload) => request("/visit-requests", { method: "POST", body: payload }),
+    updateStatus: (id, status) =>
+      request(`/visit-requests/${id}/status`, { method: "PUT", body: { status } }),
+  },
+  uploads: {
+    image: async (file) => {
+      const body = new FormData();
+      body.append("file", file);
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${BASE_URL}/uploads`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body,
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || "Image upload failed");
+      return data;
+    },
   },
 };

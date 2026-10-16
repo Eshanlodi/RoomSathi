@@ -1,124 +1,209 @@
+import { useEffect, useState } from "react";
 import {
   Building2,
+  Check,
+  ClipboardCheck,
   FileWarning,
   LayoutDashboard,
   Settings,
   Star,
   UserCog,
-  Users
+  Users,
+  X,
 } from "lucide-react";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis
-} from "recharts";
 import { DashboardLayout, StatCard } from "@/components/layout/dashboard-layout";
-import { adminUsers, monthlyStats } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { api } from "@/lib/api";
 
 const items = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/admin" },
   { label: "Users", icon: Users, to: "/admin" },
-  { label: "Owners", icon: UserCog, to: "/admin" },
+  { label: "Owner requests", icon: UserCog, to: "/admin" },
   { label: "Rooms", icon: Building2, to: "/rooms" },
   { label: "Reports", icon: FileWarning, to: "/admin" },
   { label: "Reviews", icon: Star, to: "/admin" },
-  { label: "Settings", icon: Settings, to: "/admin" }
+  { label: "Settings", icon: Settings, to: "/admin" },
 ];
+
 function AdminDashboard() {
-  return <DashboardLayout items={items} role="Admin" title="Platform overview" subtitle="Live statistics across RoomSathi">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Total students" value="2,043" icon={Users} hint="+124 this month" />
-        <StatCard label="Total owners" value="312" icon={UserCog} hint="+18 this month" />
-        <StatCard label="Listed rooms" value="524" icon={Building2} hint="41 pending review" />
-        <StatCard label="Open reports" value="6" icon={FileWarning} hint="2 high priority" />
+  const [stats, setStats] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [ownerRequests, setOwnerRequests] = useState([]);
+  const [actioningId, setActioningId] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    Promise.all([api.admin.stats(), api.admin.users(), api.admin.ownerRequests()])
+      .then(([statsData, userData, ownerRequestData]) => {
+        setStats(statsData);
+        setUsers(userData);
+        setOwnerRequests(ownerRequestData);
+      })
+      .catch((requestError) => setError(requestError.message));
+  }, []);
+
+  const reviewOwnerRequest = async (id, status) => {
+    setActioningId(id);
+    setError("");
+    try {
+      await api.admin.updateOwnerRequest(id, status);
+      setOwnerRequests((requests) => requests.filter((request) => request.id !== id));
+      setStats((current) =>
+        current
+          ? {
+              ...current,
+              pendingOwnerRequests: Math.max(0, (current.pendingOwnerRequests ?? 1) - 1),
+            }
+          : current,
+      );
+      setUsers((current) =>
+        current.map((user) =>
+          user.id === id
+            ? { ...user, status: status === "approved" ? "Active" : "Rejected" }
+            : user,
+        ),
+      );
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setActioningId(null);
+    }
+  };
+
+  return (
+    <DashboardLayout
+      items={items}
+      role="Admin"
+      title="Platform overview"
+      subtitle="Live statistics across RoomSathi"
+    >
+      {error && (
+        <p className="rounded-xl bg-destructive/10 p-4 text-sm text-destructive">{error}</p>
+      )}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <StatCard
+          label="Total students"
+          value={stats?.students ?? "-"}
+          icon={Users}
+          hint="Live database count"
+        />
+        <StatCard
+          label="Total owners"
+          value={stats?.owners ?? "-"}
+          icon={UserCog}
+          hint="Live database count"
+        />
+        <StatCard
+          label="Listed rooms"
+          value={stats?.rooms ?? "-"}
+          icon={Building2}
+          hint="Live database count"
+        />
+        <StatCard
+          label="Reviews"
+          value={stats?.reviews ?? "-"}
+          icon={Star}
+          hint="Live database count"
+        />
+        <StatCard
+          label="Owner requests"
+          value={stats?.pendingOwnerRequests ?? "-"}
+          icon={ClipboardCheck}
+          hint="Awaiting review"
+        />
       </div>
 
-      <section className="mt-8 rounded-2xl border border-border bg-card p-6 shadow-soft">
-        <h2 className="font-semibold">Growth</h2>
-        <div className="mt-6 h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={monthlyStats}>
-              <defs>
-                <linearGradient id="growth" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.5} />
-                  <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-              <XAxis dataKey="month" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
-              <Tooltip
-    contentStyle={{
-      background: "var(--card)",
-      border: "1px solid var(--border)",
-      borderRadius: 12,
-      fontSize: 12
-    }}
-  />
-              <Area type="monotone" dataKey="students" stroke="var(--primary)" fill="url(#growth)" strokeWidth={2} />
-              <Area type="monotone" dataKey="rooms" stroke="var(--accent)" fill="transparent" strokeWidth={2} />
-            </AreaChart>
-          </ResponsiveContainer>
+      <section className="mt-8 overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
+        <div className="flex items-center justify-between border-b border-border p-6">
+          <div>
+            <h2 className="font-semibold">Owner requests</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Review new owner accounts before they can manage listings.
+            </p>
+          </div>
+          <span className="rounded-full bg-secondary px-3 py-1 text-sm font-semibold">
+            {ownerRequests.length}
+          </span>
         </div>
+        {ownerRequests.length ? (
+          <div className="divide-y divide-border">
+            {ownerRequests.map((request) => (
+              <article
+                key={request.id}
+                className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+              >
+                <div className="min-w-0">
+                  <p className="font-semibold">{request.name}</p>
+                  <p className="break-all text-sm text-muted-foreground">{request.email}</p>
+                  <p className="mt-1 text-sm">
+                    {[request.phone, request.address].filter(Boolean).join(" · ") ||
+                      "No contact details provided"}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Submitted {new Date(request.submittedAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <Button
+                    size="sm"
+                    disabled={actioningId === request.id}
+                    onClick={() => reviewOwnerRequest(request.id, "approved")}
+                  >
+                    <Check /> Approve
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={actioningId === request.id}
+                    onClick={() => reviewOwnerRequest(request.id, "rejected")}
+                  >
+                    <X /> Reject
+                  </Button>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="p-8 text-center text-sm text-muted-foreground">
+            No owner requests are waiting for review.
+          </p>
+        )}
       </section>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-        <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
-          <div className="border-b border-border p-6">
-            <h2 className="font-semibold">Recent users</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-secondary/60 text-left text-xs text-muted-foreground uppercase">
-                <tr>
-                  <th className="px-6 py-3">Name</th>
-                  <th className="px-6 py-3">City</th>
-                  <th className="px-6 py-3">Joined</th>
-                  <th className="px-6 py-3">Status</th>
+      <section className="mt-8 overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
+        <div className="border-b border-border p-6">
+          <h2 className="font-semibold">Recent users</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-secondary/60 text-left text-xs uppercase text-muted-foreground">
+              <tr>
+                <th className="px-6 py-3">Name</th>
+                <th className="px-6 py-3">Role</th>
+                <th className="px-6 py-3">Joined</th>
+                <th className="px-6 py-3">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user.id} className="border-t border-border">
+                  <td className="px-6 py-4">
+                    <p className="font-medium">{user.name}</p>
+                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                  </td>
+                  <td className="px-6 py-4 capitalize">{user.role}</td>
+                  <td className="px-6 py-4 text-muted-foreground">
+                    {new Date(user.joined).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 text-accent">{user.status}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {adminUsers.map((u) => <tr key={u.email} className="border-t border-border">
-                    <td className="px-6 py-4">
-                      <p className="font-medium">{u.name}</p>
-                      <p className="text-xs text-muted-foreground">{u.email}</p>
-                    </td>
-                    <td className="px-6 py-4 text-muted-foreground">{u.city}</td>
-                    <td className="px-6 py-4 text-muted-foreground">{u.joined}</td>
-                    <td className="px-6 py-4">
-                      <span
-    className={`rounded-full px-2.5 py-1 text-xs font-semibold ${u.status === "Active" ? "bg-accent/15 text-accent" : u.status === "Pending" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}
-  >
-                        {u.status}
-                      </span>
-                    </td>
-                  </tr>)}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-          <h2 className="font-semibold">Recent activity</h2>
-          <ul className="mt-4 space-y-4">
-            {[
-    { t: "New owner verified", d: "Sneha Kulkarni \xB7 Pune", time: "10 min ago" },
-    { t: "Listing reported", d: "Study Hub Hostel \xB7 Mumbai", time: "1 h ago" },
-    { t: "Review flagged", d: "Campus Corner Girls PG", time: "3 h ago" },
-    { t: "Room approved", d: "Urban Stay Studio \xB7 Bengaluru", time: "Yesterday" }
-  ].map((a) => <li key={a.t} className="flex gap-3 rounded-xl bg-secondary/50 p-3">
-                <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                <div>
-                  <p className="text-sm font-semibold">{a.t}</p>
-                  <p className="text-xs text-muted-foreground">{a.d}</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">{a.time}</p>
-                </div>
-              </li>)}
-          </ul>
-        </section>
-      </div>
-    </DashboardLayout>;
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </DashboardLayout>
+  );
 }
+
 export default AdminDashboard;

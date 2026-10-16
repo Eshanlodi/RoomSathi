@@ -1,554 +1,81 @@
-# RoomSathi Connect
+# RoomSathi
 
-Build a modern, premium, fully responsive frontend for a web application called "RoomSathi - A Helper to Students".
+RoomSathi is a MERN-style student housing platform for finding rooms near colleges, discovering compatible roommates, and managing shared living expenses.
 
-IMPORTANT:
+## Applications
 
-Frontend only.
+- **Client:** React 19, Vite, React Router, Tailwind CSS, Radix UI, and Recharts
+- **API:** Node.js, Express, Mongoose, MongoDB, JWT, and bcrypt
 
-Do NOT create backend.
+## Repository structure
 
-Do NOT create database.
+```text
+src/                 React client source
+public/              Client static assets
+server/src/          Express API source
+server/src/models/   MongoDB models
+server/src/routes/   API endpoints
+server/src/middleware Authentication and errors
+SETUP_RUNBOOK.md     Complete Windows setup and hosting guide
+```
 
-Use only React.js + Tailwind CSS + React Router.
+## Quick start
 
-The design should look like a modern startup product similar to Airbnb, Booking.com, and NoBroker, not a college project.
+Use [`SETUP_RUNBOOK.md`](SETUP_RUNBOOK.md) as the single source of truth for prerequisites, MongoDB installation, environment variables, local development, testing, hosting, and troubleshooting.
 
-Color Theme:
+See [`ARCHITECTURE_FLOWS.md`](ARCHITECTURE_FLOWS.md) for Mermaid sequence diagrams showing browser, React client, Express API, MongoDB, and file-storage flows.
 
-- Primary: Blue (#2563EB)
+For a prepared development machine:
 
-- Secondary: White
+```powershell
+npm install
+Copy-Item .env.example .env
 
-- Accent: Emerald Green
-
-- Clean, minimal, modern UI
-
-- Rounded cards
-
-- Soft shadows
-
-- Smooth animations
-
-- Dark mode support
-
-Typography:
-
-Use Inter font.
-
-The website should have the following pages.
-
-----------------------------------------
-
-1. Landing Page
-
-----------------------------------------
-
-Create a beautiful hero section.
-
-Navbar:
-
-- Logo (RoomSathi)
-
-- Home
-
-- Find Rooms
-
-- Find Roommates
-
-- About
-
-- Contact
-
-- Login
-
-- Register
-
-Hero Section:
-
-Headline:
-
-"Find Your Perfect Room Near Your College"
-
-Sub Heading:
-
-Find verified rooms, PGs, flats and compatible roommates without paying brokerage.
-
-Buttons:
-
-- Search Rooms
-
-- Become an Owner
-
-Add a modern hero illustration.
-
-Statistics Section:
-
-- 500+ Rooms
-
-- 300+ Owners
-
-- 2000+ Students
-
-Features Section:
-
-- Verified Listings
-
-- No Brokerage
-
-- Smart Roommate Matching
-
-- Google Maps Integration
-
-- Near College Search
-
-- Expense Split Calculator
-
-Testimonials Section
-
-FAQ Section
-
-Beautiful Footer.
-
-----------------------------------------
-
-2. Student Login
-
-----------------------------------------
-
-Modern glassmorphism login card.
-
-Fields:
-
-- Email
-
-- Password
-
-Buttons:
-
-- Login
-
-- Forgot Password
-
-Link:
-
-Create Account
-
-----------------------------------------
-
-3. Student Registration
-
-----------------------------------------
-
-Beautiful multi-section form.
-
-Fields:
-
-Full Name
-
-Email
-
-Password
-
-Phone
-
-Gender
-
-College
-
-City
-
-Budget
-
-Food Preference
-
-Smoking
-
-Drinking
-
-Study Hours
-
-Sleep Time
-
-Cleanliness
-
-Preferred Sharing
-
-Profile Picture Upload
-
-Register Button
-
-----------------------------------------
-
-4. Owner Registration
-
-----------------------------------------
-
-Fields:
-
-Name
-
-Email
-
-Password
-
-Phone
-
-Aadhaar Number
-
-Address
-
-Upload Profile Image
-
-Register
-
-----------------------------------------
-
-5. Student Dashboard
-
-----------------------------------------
-
-Sidebar:
-
-Dashboard
-
-Search Rooms
-
-Wishlist
-
-Roommate Match
-
-Expense Calculator
-
-Notifications
-
-Profile
-
-Logout
-
-Dashboard Cards
-
-Recent Rooms
-
-Recommended Rooms
-
-Wishlist Count
-
-Notifications
-
-----------------------------------------
-
-6. Owner Dashboard
-
-----------------------------------------
-
-Sidebar:
-
-Dashboard
-
-Add Room
-
-My Rooms
-
-Interested Students
-
-Analytics
-
-Profile
-
-Logout
-
-Dashboard Cards
-
-Total Rooms
-
-Active Rooms
-
-Interested Students
-
-Views
-
-----------------------------------------
-
-7. Admin Dashboard
-
-----------------------------------------
-
-Sidebar:
-
-Dashboard
-
-Users
-
-Owners
-
-Rooms
-
-Reports
-
-Reviews
-
-Settings
-
-Logout
-
-Dashboard Statistics
-
-Charts
-
-Tables
-
-Recent Activity
-
-----------------------------------------
-
-8. Room Listing Page
-
-----------------------------------------
-
-Search Bar
-
-Advanced Filters
-
-Budget
-
-College
-
-City
-
-Sharing Type
-
-WiFi
-
-Parking
-
-Food
-
-AC
-
-Attached Bathroom
-
-Verified Only
-
-Display beautiful room cards.
-
-Each card includes:
-
-Large Image
-
-Room Name
-
-Rent
-
-Distance
-
-Facilities
-
-Verified Badge
-
-Save Button
-
-View Details Button
-
-----------------------------------------
-
-9. Room Details Page
-
-----------------------------------------
-
-Large image gallery.
-
-Room Information
-
-Rent
-
-Deposit
-
-Facilities
-
-Description
-
-Google Map placeholder
-
-Owner Details
-
-Buttons:
-
-Call Owner
-
-WhatsApp Owner
-
-Book Visit
-
-Student Reviews
-
-Similar Rooms
-
-----------------------------------------
-
-10. Roommate Matching Page
-
-----------------------------------------
-
-Create a modern questionnaire.
-
-Budget
-
-Food Preference
-
-Smoking
-
-Drinking
-
-Study Hours
-
-Sleep Time
-
-Wake Up Time
-
-Cleanliness
-
-Preferred Sharing
-
-Show Match Result Card.
-
-Example:
-
-95% Match
-
-Recommended Students List
-
-----------------------------------------
-
-11. Expense Split Calculator
-
-----------------------------------------
-
-Inputs:
-
-Rent
-
-Electricity
-
-Water
-
-Gas
-
-Internet
-
-Maintenance
-
-Members
-
-Display:
-
-Per Person Expense
-
-Beautiful Result Card.
-
-----------------------------------------
-
-12. Profile Page
-
-----------------------------------------
-
-Profile Image
-
-Personal Information
-
-Edit Profile
-
-Change Password
-
-Saved Rooms
-
-Logout
-
-----------------------------------------
-
-Components
-
-Reusable Components:
-
-Navbar
-
-Footer
-
-Sidebar
-
-Buttons
-
-Cards
-
-Inputs
-
-Modals
-
-Toast Notifications
-
-Loader
-
-Pagination
-
-----------------------------------------
-
-Design Requirements
-
-Use React Functional Components.
-
-Use Tailwind CSS.
-
-Use React Router.
-
-Use responsive layouts.
-
-Use reusable components.
-
-Use beautiful icons from Lucide React.
-
-Use smooth hover animations.
-
-Use Framer Motion for animations.
-
-Use professional spacing.
-
-Use modern SaaS UI.
-
-No dummy ugly design.
-
-Every page should feel like a premium startup product.
-
-Generate clean folder structure.
-
-Generate reusable React components.
-
-Do not generate backend.
-
-Do not generate API code.
-
-Do not generate database.
-
-Only create frontend UI with dummy JSON data.
-
-The final website should look professional enough to impress college faculty and recruiters.
-
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/fd7f88f7-3376-47d1-813d-05beeab57a52).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+cd server
+npm install
+Copy-Item .env.example .env
+npm run seed
 npm run dev
+```
+
+In a second terminal, from the repository root:
+
+```powershell
+npm run dev
+```
+
+The client normally runs at `http://localhost:5173` and the API at `http://localhost:5000/api`.
+
+## Environment files
+
+The client uses the root `.env`:
+
+```dotenv
+VITE_API_URL=http://localhost:5000/api
+```
+
+The API uses `server/.env`:
+
+```dotenv
+PORT=5000
+NODE_ENV=development
+MONGODB_URI=mongodb://127.0.0.1:27017/roomsathi
+JWT_SECRET=replace-with-a-long-random-secret
+CLIENT_URL=http://localhost:5173
+TRUST_PROXY_HOPS=0
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_VERIFY_SERVICE_SID=
+```
+
+Never commit `.env` files or expose `MONGODB_URI` and `JWT_SECRET` to the browser.
+Production phone verification requires a Twilio Verify service and all three `TWILIO_*` server secrets. A one-time development code is returned only when `NODE_ENV=development`; all other environments fail closed unless Twilio is configured.
+If the API is behind a reverse proxy, set `TRUST_PROXY_HOPS` to the exact number of trusted proxies and configure a shared rate-limit store when running multiple API instances.
+
+## Validation
+
+```powershell
+npm run build
+npm --prefix server install
+Get-ChildItem server/src -Recurse -Filter *.js | ForEach-Object { node --check $_.FullName }
 ```
